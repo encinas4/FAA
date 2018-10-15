@@ -45,8 +45,8 @@ class ValidacionSimple(EstrategiaParticionado):
       np.random.permutation(datos)
       indice = int(porcentajeT*len(datos))
       aux = Particion()
-      aux.indicesTrain.concat(datos[:index])
-      aux.indicesTest.concat(datos[index+1:])
+      aux.indicesTrain.concat(datos[:indice])
+      aux.indicesTest.concat(datos[indice+1:])
       listaPartic.add(aux)
       print(aux)
 
@@ -55,18 +55,41 @@ class ValidacionSimple(EstrategiaParticionado):
       
 #####################################################################################################      
 class ValidacionCruzada(EstrategiaParticionado):
+
+  def __init__(self, numeroParticiones)  :
+    nombreEstrategia = "ValidacionCruzada"
+    numParticiones = numeroParticiones
+    listaPartic = []
+
   
   # Crea particiones segun el metodo de validacion cruzada.
   # El conjunto de entrenamiento se crea con las nfolds-1 particiones y el de test con la particion restante
   # Esta funcion devuelve una lista de particiones (clase Particion)
   # TODO: implementar
   def creaParticiones(self,datos,seed=None):   
-    random.seed(seed)
-    pass
+    superior = int(len(datos)/numParticiones)
+    base=superior
+    inferior=0
+    np.random.permutation(datos)
+    for i in range(numParticiones):
+      aux = Particion()
+      aux.indicesTrain.concat(datos[inferior:superior-1])
+      aux.indicesTest.concat(datos[superior:])
+      if inferior != 0:
+        aux.indicesTest.concat(datos[0:inferior-1])
+
+      listaPartic.add(aux)
+      print(aux)
+      inferior=superior
+      superior= superior+base
+      
+      pass
     
 
 #####################################################################################################      
 class ValidacionBootstrap(EstrategiaParticionado):
+
+
   
   # Crea particiones segun el metodo de validacion por bootstrap.
   # Esta funcion devuelve una lista de particiones (clase Particion)
