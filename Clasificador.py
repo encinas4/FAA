@@ -28,7 +28,11 @@ class Clasificador(object):
   # TODO: implementar
   def error(self,datos,pred):
     # Aqui se compara la prediccion (pred) con las clases reales y se calcula el error    
-	pass
+    sum = 0
+    for i in range(int(len(datos))):
+      sum = (datos[i] - pred[i])
+    return sum
+	
     
     
   # Realiza una clasificacion utilizando una estrategia de particionado determinada
@@ -40,6 +44,9 @@ class Clasificador(object):
     # y obtenemos el error en la particion de test i
     # - Para validacion simple (hold-out): entrenamos el clasificador con la particion de train
     # y obtenemos el error en la particion test
+    particiones = particionado.creaParticiones(self, dataset, seed)
+    entrenamiento = clasificador.entrenamiento(self, particiones.indicesTrain, dataset.NombreAtributos, dataset.diccionario)
+    err = error(self, dataset, entrenamiento)
 	pass
        
   

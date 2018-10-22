@@ -89,13 +89,28 @@ class ValidacionCruzada(EstrategiaParticionado):
 #####################################################################################################      
 class ValidacionBootstrap(EstrategiaParticionado):
 
+  def __init__(self, numeroParticiones)  :
+    nombreEstrategia = "ValidacionCruzada"
+    numParticiones = numeroParticiones
+    listaPartic = []
+
+
 
   
   # Crea particiones segun el metodo de validacion por bootstrap.
   # Esta funcion devuelve una lista de particiones (clase Particion)
   # TODO: implementar
   def creaParticiones(self,datos,seed=None):   
-    random.seed(seed)
-    pass
+    posiciones=[]
+   
+    for i in range(numParticiones):
+      aux = Particion()
+      for i in range(int(len(datos)/2)):
+        r1 = random.seed(seed)
+        r2 = random.seed(seed)
+        posiciones.concat(r)
+        aux.indicesTest.concat(datos[r])
+      listaPartic.add(aux)
+  return listaPartic
 
     
