@@ -28,10 +28,7 @@ class Clasificador(object):
   # TODO: implementar
   def error(self,datos,pred):
     # Aqui se compara la prediccion (pred) con las clases reales y se calcula el error    
-    sum = 0
-    for i in range(int(len(datos))):
-      sum = (datos[i] - pred[i])
-    return sum
+    return np.count_nonzero(datos[:, -1] != pred)/pred.size
 	
     
     
@@ -44,9 +41,17 @@ class Clasificador(object):
     # y obtenemos el error en la particion de test i
     # - Para validacion simple (hold-out): entrenamos el clasificador con la particion de train
     # y obtenemos el error en la particion test
-    particiones = particionado.creaParticiones(self, dataset, seed)
-    entrenamiento = clasificador.entrenamiento(self, particiones.indicesTrain, dataset.NombreAtributos, dataset.diccionario)
-    err = error(self, dataset, entrenamiento)
+    particionado.creaParticiones(self, dataset, seed)
+    error = np.array(())
+    if(particionado.numParticiones == 1):
+      entrenamiento = clasificador.entrenamiento(self, particionado[0].indicesTrain, dataset.NombreAtributos, dataset.diccionario)
+      evaluacion = clasificador.clasifica(self, particionado[0].indicesTest,dataset.NombreAtributos, dataset.diccionario)
+      return err = error(self, dataset, evaluacion)
+    else:
+      for particion in particionado.listaPartic:
+        entrenamiento = clasificador.entrenamiento(self, particionado.indicesTrain, dataset.NombreAtributos, dataset.diccionario)
+        evaluacion = clasificador.clasifica(self, particionado.indicesTest,dataset.NombreAtributos, dataset.diccionario)
+
 	pass
        
   

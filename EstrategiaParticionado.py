@@ -94,22 +94,22 @@ class ValidacionBootstrap(EstrategiaParticionado):
     numParticiones = numeroParticiones
     listaPartic = []
 
-
-
-  
   # Crea particiones segun el metodo de validacion por bootstrap.
   # Esta funcion devuelve una lista de particiones (clase Particion)
   # TODO: implementar
   def creaParticiones(self,datos,seed=None):   
     posiciones=[]
-   
+    np.random.permutation(datos)
+
     for i in range(numParticiones):
       aux = Particion()
-      for i in range(int(len(datos)/2)):
-        r1 = random.seed(seed)
-        r2 = random.seed(seed)
-        posiciones.concat(r)
-        aux.indicesTest.concat(datos[r])
+        r1 = random.random(len(datos)/2)
+        r2 = random.random(len(datos)/2)
+      for i in range(len(datos)/2):
+        x = int(r1[i]*len(datos))
+        y = int(r2[i]*len(datos))
+        aux.indicesTrain.concat(datos[x])
+        aux.indicesTest.concat(datos[y])
       listaPartic.add(aux)
   return listaPartic
 
