@@ -3,7 +3,7 @@ from abc import ABCMeta,abstractmethod
 
 class Particion():
 
-  # Esta clase mantiene la lista de índices de Train y Test para cada partición del conjunto de particiones  
+  # Esta clase mantiene la lista de Ã­ndices de Train y Test para cada particiÃ³n del conjunto de particiones  
   def __init__(self):
     self.indicesTrain=[]
     self.indicesTest=[]
@@ -102,15 +102,14 @@ class ValidacionBootstrap(EstrategiaParticionado):
     np.random.permutation(datos)
 
     for i in range(numParticiones):
-      aux = Particion()
-        r1 = random.random(len(datos)/2)
-        r2 = random.random(len(datos)/2)
-      for i in range(len(datos)/2):
-        x = int(r1[i]*len(datos))
-        y = int(r2[i]*len(datos))
-        aux.indicesTrain.concat(datos[x])
-        aux.indicesTest.concat(datos[y])
-      listaPartic.add(aux)
-  return listaPartic
+      part = particion()
+      aux = np.random.choice(datos.numfilas, datos.numfilas, replace=true)
+      for j in range(datos.numfilas):
+        if j in aux:
+          part.indicesTrain.concat(datos[j])
+        else:
+          part.indicesTest.concat(datos[j])
+      listaPartic.add(part)
+  return listaParticiones
 
     
