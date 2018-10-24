@@ -63,7 +63,7 @@ class ClasificadorNaiveBayes(Clasificador):
 
   # TODO: implementar
   def entrenamiento(self,datostrain,atributosDiscretos,diccionario):
-
+    listaMatrices = []
     #Creamos una matriz de frecuencias por cada atributo
     for x in len(atributosDiscretos):
       if atributosDiscretos[x] == "Nominal"
@@ -71,12 +71,29 @@ class ClasificadorNaiveBayes(Clasificador):
 
         countClase = 0
         for filaM in datostrain[:,x]:
-          matrix[filaM, datostrain[countClase:-1]] +=1
+          matrix[filaM, datostrain[countClase,-1]] +=1
           countClase += 1;
-        
+#faltaria sacar las probs
+
+
+        listaMatrices .append(matrix)  
       else
         matrix = np.empty([2,2], dtype=float)
+        for filaM in datostrain[:,x]:
+          false = []
+          true = []
+          if  datostrain[filaM, -1] == 0:
+            false.append(datostrain[filaM, x])
+          else:
+            true.append(datostrain[filaM, x])
+        matrix[0,0]= mean(false)
+        matrix[0,1]= mean(true)
+        matrix[1,1]=variance(true)
+        matrix[1,0]=variance(false)
+        listaMatrices .append(matrix)
+        #primero u
 
+        
 
 
 
