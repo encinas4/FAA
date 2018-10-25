@@ -58,12 +58,10 @@ class Clasificador(object):
 ##############################################################################
 
 class ClasificadorNaiveBayes(Clasificador):
-
- 
+  listaMatrices = []
 
   # TODO: implementar
   def entrenamiento(self,datostrain,atributosDiscretos,diccionario):
-    listaMatrices = []
     #Creamos una matriz de frecuencias por cada atributo
     for x in len(atributosDiscretos):
       if atributosDiscretos[x] == "Nominal"
@@ -72,7 +70,18 @@ class ClasificadorNaiveBayes(Clasificador):
         countClase = 0
         for filaM in datostrain[:,x]:
           matrix[filaM, datostrain[countClase,-1]] +=1
-          countClase += 1;
+          countClase += 1
+          if  datostrain[countClase,-1] == 1:
+            trues +=1
+          else
+            flases+=1
+        countClase=0    
+        for filaM in datostrain[:,x]:
+          if  datostrain[countClase,-1] == 1:
+            matrix[filaM, datostrain[countClase,-1]] = matrix[filaM, datostrain[countClase,-1]]/ trues
+          else:
+            matrix[filaM, datostrain[countClase,-1]] = matrix[filaM, datostrain[countClase,-1]]/ falses
+          countClase += 1
 #faltaria sacar las probs
 
 
@@ -91,24 +100,40 @@ class ClasificadorNaiveBayes(Clasificador):
         matrix[1,1]=variance(true)
         matrix[1,0]=variance(false)
         listaMatrices .append(matrix)
-        #primero u
-
-        
-
-
-
-
-
-
- #    matrixList.append(matrix)
-
-
+        #primero media luego varianza
 	pass
     
      
     
   # TODO: implementar
   def clasifica(self,datostest,atributosDiscretos,diccionario):
+    falses=np.count_nonzero(datostest[:, -1]==0)
+    trues=np.count_nonzero(datostest[:, -1]==1)
+    total = trues+falses
+    valores = []
+
+    for i in range(datosTest.numFilas):
+      res = 1
+      for j in len(datostest[i]):
+        if atributosDiscretos[j] == "Nominal":
+          aux = listaMatrices[i]
+          res *= aux[datostest[i,j],[datostest[i,-1]]]
+        else:
+          aux = listaMatrices[i]
+          u = aux[0,[datostest[i,-1]]]
+          v =  aux[1,[datostest[i,-1]]]
+          res *= norm.pdf(datostest[i,j], u,v)
+        if datostest[i,-1] == 1
+          res *= trues/total
+        else:
+          res *= false/total
+        valores.append(res)
+        pos = valores.index(max(valores))
+        return datostest[pos,-1]
+
+
+
+
     pass
 
     
