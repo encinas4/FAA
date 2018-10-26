@@ -1,5 +1,5 @@
 from abc import ABCMeta,abstractmethod
-
+import numpy as np
 
 class Particion():
 
@@ -58,7 +58,7 @@ class ValidacionCruzada(EstrategiaParticionado):
 
   def __init__(self, numeroParticiones)  :
     nombreEstrategia = "ValidacionCruzada"
-    numParticiones = numeroParticiones
+    self.numParticiones = numeroParticiones
     listaPartic = []
 
   
@@ -67,7 +67,7 @@ class ValidacionCruzada(EstrategiaParticionado):
   # Esta funcion devuelve una lista de particiones (clase Particion)
   # TODO: implementar
   def creaParticiones(self,datos,seed=None):   
-    superior = int(len(datos)/numParticiones)
+    superior = int(datos.numFilas/self.numParticiones)
     base=superior
     inferior=0
     np.random.permutation(datos)
@@ -110,6 +110,6 @@ class ValidacionBootstrap(EstrategiaParticionado):
         else:
           part.indicesTest.concat(datos[j])
       listaPartic.add(part)
-  return listaParticiones
+    return listaPartic
 
     

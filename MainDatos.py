@@ -7,7 +7,14 @@ Created on Sun Oct 01 20:23:59 2017
 
 from Datos import Datos
 from EstrategiaParticionado import EstrategiaParticionado
+from EstrategiaParticionado import ValidacionCruzada
+from Clasificador import ClasificadorNaiveBayes
 
 #dataset=Datos('f:/temp/german.data')
-dataset=Datos('ConjuntosDatos/german.data')
-EstrategiaParticionado = ValidacionSimple()
+dataset=Datos('balloons.data')
+estrategia= ValidacionCruzada(3)
+clasificador=ClasificadorNaiveBayes()
+#  def entrenamiento(self,datostrain,atributosDiscretos,diccionario):
+
+errores=clasificador.validacion(estrategia,dataset,clasificador, seed=None)
+print(errores)

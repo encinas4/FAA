@@ -10,7 +10,7 @@ class Datos(object):
 	def __init__(self, nombreFichero):
 		with open(nombreFichero, "r") as f:
 			# Numero de filas del conjunto de datos
-			self.numFilas=f.readline().rstrip();
+			self.numFilas=int(f.readline().rstrip());
 
 			# Lista con el nombre de los atributos
 			self.nombreAtributos=f.readline().rstrip().split(",");
@@ -83,14 +83,6 @@ class Datos(object):
 
 	#TODO: implementar en la práctica 1
 	def extraeDatos(idx):
-		i=0
-		j=0
-		subconjuntoDatos = []
-
-		for i in range(len(idx)):
-			subconjuntoDatos = set.subconjuntoDatos[idx[i]]
-			j = j+1
-
-		return subconjuntoDatos
+		return self.datos[idx,:]
 
   

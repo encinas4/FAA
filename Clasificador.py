@@ -35,58 +35,63 @@ class Clasificador(object):
   # Realiza una clasificacion utilizando una estrategia de particionado determinada
   # TODO: implementar esta funcion
   def validacion(self,particionado,dataset,clasificador,seed=None):
-       
+    errores = []
     # Creamos las particiones siguiendo la estrategia llamando a particionado.creaParticiones
     # - Para validacion cruzada: en el bucle hasta nv entrenamos el clasificador con la particion de train i
     # y obtenemos el error en la particion de test i
     # - Para validacion simple (hold-out): entrenamos el clasificador con la particion de train
     # y obtenemos el error en la particion test
-    particionado.creaParticiones(self, dataset, seed)
-    error = np.array(())
-    if(particionado.numParticiones == 1):
-      entrenamiento = clasificador.entrenamiento(self, particionado[0].indicesTrain, dataset.NombreAtributos, dataset.diccionario)
-      evaluacion = clasificador.clasifica(self, particionado[0].indicesTest,dataset.NombreAtributos, dataset.diccionario)
-      return err = error(self, dataset, evaluacion)
-    else:
-      for particion in particionado.listaPartic:
-        entrenamiento = clasificador.entrenamiento(self, particionado.indicesTrain, dataset.NombreAtributos, dataset.diccionario)
-        evaluacion = clasificador.clasifica(self, particionado.indicesTest,dataset.NombreAtributos, dataset.diccionario)
+    #Creamos las particiones
+    particionado.creaParticiones(dataset.datos, seed)
+    # Recorremos las particiones
+    for i in range(particionado.numeroParticiones):
+      #Extraemos los datos de las particiones, tanto de test como de train
+      train = extraeDatos(particionado[i].indicesTrain)
+      test = extraeDatos(particionado[i].indicesTest)
 
-	pass
+      # Entrenamos con los datos de train y evaluamos con los datos de test
+      entrenamiento = clasificador.entrenamiento(self, train, dataset.NombreAtributos, dataset.diccionario)
+      evaluacion = clasificador.clasifica(self, test,dataset.NombreAtributos, dataset.diccionario)
+      error.append(error(self, dataset, evaluacion))
+
+    return errores
+	
        
   
 ##############################################################################
 
 class ClasificadorNaiveBayes(Clasificador):
   listaMatrices = []
+  def _init_(self):
+    self.listaMatrices=[]
+
 
   # TODO: implementar
   def entrenamiento(self,datostrain,atributosDiscretos,diccionario):
     #Creamos una matriz de frecuencias por cada atributo
     for x in len(atributosDiscretos):
-      if atributosDiscretos[x] == "Nominal"
+      if atributosDiscretos[x] == "Nominal":
         matrix = np.empty([len(diccionario[x].keys()),2], dtype=float)
 
+        # Recorremos todos los datos y aumentamos la celda correspondiente al atributo y a true o false
         countClase = 0
         for filaM in datostrain[:,x]:
           matrix[filaM, datostrain[countClase,-1]] +=1
           countClase += 1
           if  datostrain[countClase,-1] == 1:
             trues +=1
-          else
-            flases+=1
-        countClase=0    
-        for filaM in datostrain[:,x]:
-          if  datostrain[countClase,-1] == 1:
-            matrix[filaM, datostrain[countClase,-1]] = matrix[filaM, datostrain[countClase,-1]]/ trues
           else:
-            matrix[filaM, datostrain[countClase,-1]] = matrix[filaM, datostrain[countClase,-1]]/ falses
-          countClase += 1
-#faltaria sacar las probs
+            flases+=1
 
+        # Aplicamos la regla de Laplace
+        if 0 in matrix:
+          matrix = matrix +1   
+          
+        matrix[:,0] = matrix[:,0]/ falses
+        matrix[:,1] = matrix[:,1]/ trues    
 
         listaMatrices .append(matrix)  
-      else
+      else:
         matrix = np.empty([2,2], dtype=float)
         for filaM in datostrain[:,x]:
           false = []
@@ -101,7 +106,7 @@ class ClasificadorNaiveBayes(Clasificador):
         matrix[1,0]=variance(false)
         listaMatrices .append(matrix)
         #primero media luego varianza
-	pass
+    pass
     
      
     
@@ -113,34 +118,27 @@ class ClasificadorNaiveBayes(Clasificador):
     valores = []
 
     for i in range(datosTest.numFilas):
-      res = 1
+      resT = 1
+      resF = 1
       for j in len(datostest[i]):
         if atributosDiscretos[j] == "Nominal":
           aux = listaMatrices[i]
-          res *= aux[datostest[i,j],[datostest[i,-1]]]
+          resF *= aux[datostest[i,j],0]
+          resT *= aux[datostest[i,j],1]
         else:
           aux = listaMatrices[i]
-          u = aux[0,[datostest[i,-1]]]
-          v =  aux[1,[datostest[i,-1]]]
-          res *= norm.pdf(datostest[i,j], u,v)
-        if datostest[i,-1] == 1
-          res *= trues/total
-        else:
-          res *= false/total
-        valores.append(res)
-        pos = valores.index(max(valores))
-        return datostest[pos,-1]
-
-
-
-
-    pass
-
-    
-    
-
-
-
-
-
-  
+          u = aux[0,0]
+          v =  aux[1,0]
+          resF *= norm.pdf(datostest[i,j], u,v)
+          aux = listaMatrices[i]
+          u = aux[0,1]
+          v =  aux[1,1]
+          resT *= norm.pdf(datostest[i,j], u,v)
+      resT *= trues/total
+      resF *= falses/total
+      if resT> resF:
+        valores.append(1)
+      else:
+        valores.append(0)
+          #pos = valores.index(max(resT,resF))
+    return valores 
