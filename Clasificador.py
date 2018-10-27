@@ -1,5 +1,6 @@
 from abc import ABCMeta,abstractmethod
-
+import numpy as np
+import scipy.stats as norm
 
 class Clasificador(object):
   
@@ -28,7 +29,7 @@ class Clasificador(object):
   # TODO: implementar
   def error(self,datos,pred):
     # Aqui se compara la prediccion (pred) con las clases reales y se calcula el error    
-    return np.count_nonzero(datos[:, -1] != pred)/pred.size
+    return np.count_nonzero(datos[:, -1] != pred)/len(pred)
 	
     
     
@@ -42,20 +43,22 @@ class Clasificador(object):
     # - Para validacion simple (hold-out): entrenamos el clasificador con la particion de train
     # y obtenemos el error en la particion test
     #Creamos las particiones
-    particionado.creaParticiones(dataset.datos, seed)
+    particionado.creaParticiones(dataset, seed)
     # Recorremos las particiones
-    for i in range(particionado.numeroParticiones):
+    for particion in particionado.listaPartic:
+      print(particion.indicesTrain)
+      print(particion.indicesTest)
       #Extraemos los datos de las particiones, tanto de test como de train
-      train = extraeDatos(particionado[i].indicesTrain)
-      test = extraeDatos(particionado[i].indicesTest)
+     # train = dataset.extraeDatos(particion.indicesTrain)
+    #  test = dataset.extraeDatos(particion.indicesTest)
 
       # Entrenamos con los datos de train y evaluamos con los datos de test
-      entrenamiento = clasificador.entrenamiento(self, train, dataset.NombreAtributos, dataset.diccionario)
-      evaluacion = clasificador.clasifica(self, test,dataset.NombreAtributos, dataset.diccionario)
-      error.append(error(self, dataset, evaluacion))
+    #  entrenamiento = clasificador.entrenamiento(train, dataset.nombreAtributos, dataset.diccionarios)
+    #  evaluacion = clasificador.clasifica(test,dataset.nombreAtributos, dataset.diccionarios)
+     # errores.append(self.error(dataset.datos, evaluacion))
 
-    return errores
-	
+    #return errores
+    pass    
        
   
 ##############################################################################
@@ -69,13 +72,14 @@ class ClasificadorNaiveBayes(Clasificador):
   # TODO: implementar
   def entrenamiento(self,datostrain,atributosDiscretos,diccionario):
     #Creamos una matriz de frecuencias por cada atributo
-    for x in len(atributosDiscretos):
+    for x in range(len(atributosDiscretos)):
       if atributosDiscretos[x] == "Nominal":
         matrix = np.empty([len(diccionario[x].keys()),2], dtype=float)
 
         # Recorremos todos los datos y aumentamos la celda correspondiente al atributo y a true o false
         countClase = 0
-        for filaM in datostrain[:,x]:
+        for f in datostrain[:,x]:
+          filaM=f
           matrix[filaM, datostrain[countClase,-1]] +=1
           countClase += 1
           if  datostrain[countClase,-1] == 1:
@@ -90,21 +94,23 @@ class ClasificadorNaiveBayes(Clasificador):
         matrix[:,0] = matrix[:,0]/ falses
         matrix[:,1] = matrix[:,1]/ trues    
 
-        listaMatrices .append(matrix)  
+        self.listaMatrices.append(matrix)  
       else:
         matrix = np.empty([2,2], dtype=float)
-        for filaM in datostrain[:,x]:
-          false = []
-          true = []
+        false = []
+        true = []
+        for f in datostrain[:,x]:
+          filaM=int(f)
+          
           if  datostrain[filaM, -1] == 0:
             false.append(datostrain[filaM, x])
           else:
             true.append(datostrain[filaM, x])
-        matrix[0,0]= mean(false)
-        matrix[0,1]= mean(true)
-        matrix[1,1]=variance(true)
-        matrix[1,0]=variance(false)
-        listaMatrices .append(matrix)
+        matrix[0,0]= np.mean(false)
+        matrix[0,1]= np.mean(true)
+        matrix[1,1]= np.var(true)
+        matrix[1,0]= np.var(false)
+        self.listaMatrices.append(matrix)
         #primero media luego varianza
     pass
     
@@ -117,23 +123,23 @@ class ClasificadorNaiveBayes(Clasificador):
     total = trues+falses
     valores = []
 
-    for i in range(datosTest.numFilas):
+    for i in range(len(datostest[0,:])):
       resT = 1
       resF = 1
-      for j in len(datostest[i]):
+      for j in range(len(datostest[i])):
         if atributosDiscretos[j] == "Nominal":
           aux = listaMatrices[i]
           resF *= aux[datostest[i,j],0]
           resT *= aux[datostest[i,j],1]
         else:
-          aux = listaMatrices[i]
+          aux = self.listaMatrices[i]
           u = aux[0,0]
           v =  aux[1,0]
-          resF *= norm.pdf(datostest[i,j], u,v)
-          aux = listaMatrices[i]
+          resF *= norm.norm.pdf(datostest[i,j], u,v)
+          aux = self.listaMatrices[i]
           u = aux[0,1]
           v =  aux[1,1]
-          resT *= norm.pdf(datostest[i,j], u,v)
+          resT *= norm.norm.pdf(datostest[i,j], u,v)
       resT *= trues/total
       resF *= falses/total
       if resT> resF:

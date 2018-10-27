@@ -26,64 +26,71 @@ class EstrategiaParticionado(object):
 #####################################################################################################
 
 class ValidacionSimple(EstrategiaParticionado):
-  
+  listaPartic = [] 
+  numParticiones = 0
+  porcentajeT = 0
 
   def __init__(self, porcentajeTrain, numeroParticiones):
-    nombreEstrategia = "ValidacionSimple"
-    numParticiones = numeroParticiones
-    porcentajeT = porcentajeTrain
-    listaPartic = [] 
-
-
+    nombreEstrategia = "Validacion Simple"
+    self.numParticiones = numeroParticiones
+    self.porcentajeT = porcentajeTrain
 
   # Crea particiones segun el metodo tradicional de division de los datos segun el porcentaje deseado.
   # Devuelve una lista de particiones (clase Particion)
   # TODO: implementar
   def creaParticiones(self,datos,seed=None):
 
-    for i in range(numParticiones):
-      np.random.permutation(datos)
-      indice = int(porcentajeT*len(datos))
+    for i in range(self.numParticiones):
+      nfilas= datos.numFilas
+      np.random.permutation(nfilas)
+      indice = int(self.porcentajeT*nfilas)
+      print(indice)
       aux = Particion()
-      aux.indicesTrain.concat(datos[:indice])
-      aux.indicesTest.concat(datos[indice+1:])
-      listaPartic.add(aux)
-      print(aux)
+      aux.indicesTrain.append(datos.datos[:indice])
+      aux.indicesTest.append(datos.datos[indice+1:])
+      self.listaPartic.append(aux)
 
-    return listaPartic
+    return self.listaPartic
       
       
 #####################################################################################################      
 class ValidacionCruzada(EstrategiaParticionado):
+  numParticiones = 0
+  listaPartic = []
 
   def __init__(self, numeroParticiones)  :
-    nombreEstrategia = "ValidacionCruzada"
+    nombreEstrategia = "Validacion Cruzada"
     self.numParticiones = numeroParticiones
-    listaPartic = []
-
+    for i in range(self.numParticiones):
+      self.listaPartic.append(Particion())
   
   # Crea particiones segun el metodo de validacion cruzada.
   # El conjunto de entrenamiento se crea con las nfolds-1 particiones y el de test con la particion restante
   # Esta funcion devuelve una lista de particiones (clase Particion)
   # TODO: implementar
   def creaParticiones(self,datos,seed=None):   
-    superior = int(datos.numFilas/self.numParticiones)
-    base=superior
-    inferior=0
-    np.random.permutation(datos)
-    for i in range(numParticiones):
-      aux = Particion()
-      aux.indicesTrain.concat(datos[inferior:superior-1])
-      aux.indicesTest.concat(datos[superior:])
-      if inferior != 0:
-        aux.indicesTest.concat(datos[0:inferior-1])
+    np.random.seed(seed)
+    nfilas = datos.numFilas
+    p = np.random.permutation(nfilas)
+    numDatosp = int(nfilas/self.numParticiones)
+    auxPartic = []
 
-      listaPartic.add(aux)
-      print(aux)
-      inferior=superior
-      superior= superior+base
+    for i in range(self.numParticiones):
+      auxPartic.append([])
+
+      if self.numParticiones-1 == i:
+        auxPartic[i] = p[i*numDatosp:]
+      else:
+        auxPartic[i] = p[i*numDatosp: i*numDatosp+numDatosp]
+
+    for i in range(self.numParticiones):
+      self.listaPartic[i].indicesTest = auxPartic[i].tolist()
+      self.listaPartic[i].indicesTrain = []
+      for j in range(self.numParticiones):
+        if j != i:
+          self.listaPartic[j].indicesTrain = auxPartic[j].tolist()
       
-      pass
+    pass
     
 
 #####################################################################################################      
@@ -106,9 +113,9 @@ class ValidacionBootstrap(EstrategiaParticionado):
       aux = np.random.choice(datos.numfilas, datos.numfilas, replace=true)
       for j in range(datos.numfilas):
         if j in aux:
-          part.indicesTrain.concat(datos[j])
+          part.indicesTrain.append(datos[j])
         else:
-          part.indicesTest.concat(datos[j])
+          part.indicesTest.append(datos[j])
       listaPartic.add(part)
     return listaPartic
 

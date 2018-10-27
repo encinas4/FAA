@@ -82,7 +82,7 @@ class Datos(object):
 
 
 	#TODO: implementar en la práctica 1
-	def extraeDatos(idx):
+	def extraeDatos(self,idx):
 		return self.datos[idx,:]
 
   
