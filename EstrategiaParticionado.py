@@ -39,15 +39,18 @@ class ValidacionSimple(EstrategiaParticionado):
   # Devuelve una lista de particiones (clase Particion)
   # TODO: implementar
   def creaParticiones(self,datos,seed=None):
-
     for i in range(self.numParticiones):
-      nfilas= datos.numFilas
-      np.random.permutation(nfilas)
-      indice = int(self.porcentajeT*nfilas)
-      print(indice)
+      p=np.random.permutation(datos.numFilas)
+      np.random.seed(seed)
+      numFilas= datos.numFilas
+      indice = int(self.porcentajeT*numFilas)
+      #print(indice)
       aux = Particion()
-      aux.indicesTrain.append(datos.datos[:indice])
-      aux.indicesTest.append(datos.datos[indice+1:])
+
+      for i in range(indice):
+        aux.indicesTrain.append(p[i])
+      for i in range(indice, numFilas):
+        aux.indicesTest.append(p[i])
       self.listaPartic.append(aux)
 
     return self.listaPartic
@@ -110,12 +113,13 @@ class ValidacionBootstrap(EstrategiaParticionado):
 
     for i in range(numParticiones):
       part = particion()
-      aux = np.random.choice(datos.numfilas, datos.numfilas, replace=true)
-      for j in range(datos.numfilas):
-        if j in aux:
-          part.indicesTrain.append(datos[j])
-        else:
-          part.indicesTest.append(datos[j])
+      aux = np.random.choice(datos.numFilas, datos.numfilas, replace=true)
+      part.indicesTrain=aux
+      aux=[]
+      for i in range(datos.numFilas):
+        if i not in aux:
+          aux.append(i)
+      part.indicesTest=aux
       listaPartic.add(part)
     return listaPartic
 

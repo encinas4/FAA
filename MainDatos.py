@@ -13,8 +13,8 @@ from Clasificador import ClasificadorNaiveBayes
 
 #dataset=Datos('f:/temp/german.data')
 dataset=Datos('balloons.data')
-print(dataset.datos)
-estrategia= ValidacionSimple(0.25,3)
+#print(dataset.datos)
+estrategia= ValidacionSimple(0.60,2)
 clasificador=ClasificadorNaiveBayes()
 #  def entrenamiento(self,datostrain,atributosDiscretos,diccionario):
 

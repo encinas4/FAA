@@ -28,7 +28,8 @@ class Clasificador(object):
   # Obtiene el numero de aciertos y errores para calcular la tasa de fallo
   # TODO: implementar
   def error(self,datos,pred):
-    # Aqui se compara la prediccion (pred) con las clases reales y se calcula el error    
+    # Aqui se compara la prediccion (pred) con las clases reales y se calcula el error
+    print(len(pred))    
     return np.count_nonzero(datos[:, -1] != pred)/len(pred)
 	
     
@@ -46,18 +47,24 @@ class Clasificador(object):
     particionado.creaParticiones(dataset, seed)
     # Recorremos las particiones
     for particion in particionado.listaPartic:
+      #print(particion.indicesTrain)
+      #print(particion.indicesTest)
+      #Extraemos los datos de las particiones, tanto de test como de train
       print(particion.indicesTrain)
       print(particion.indicesTest)
-      #Extraemos los datos de las particiones, tanto de test como de train
-     # train = dataset.extraeDatos(particion.indicesTrain)
-    #  test = dataset.extraeDatos(particion.indicesTest)
+      train = dataset.extraeDatos(particion.indicesTrain)
+      test = dataset.extraeDatos(particion.indicesTest)
 
       # Entrenamos con los datos de train y evaluamos con los datos de test
-    #  entrenamiento = clasificador.entrenamiento(train, dataset.nombreAtributos, dataset.diccionarios)
-    #  evaluacion = clasificador.clasifica(test,dataset.nombreAtributos, dataset.diccionarios)
-     # errores.append(self.error(dataset.datos, evaluacion))
+      entrenamiento = clasificador.entrenamiento(train, dataset.tipoAtributos, dataset.diccionarios)
+      evaluacion = clasificador.clasifica(test,dataset.nombreAtributos, dataset.diccionarios)
+      #print("valores:  ", evaluacion)
+      #print("MAtriz de datos", dataset.datos)
+      #print("Array evaluacion:" ,evaluacion)
+      #print("matriz test:", test[:,-1])
+      errores.append(self.error(test, evaluacion))
 
-    #return errores
+    return errores
     pass    
        
   
@@ -75,26 +82,30 @@ class ClasificadorNaiveBayes(Clasificador):
     for x in range(len(atributosDiscretos)):
       if atributosDiscretos[x] == "Nominal":
         matrix = np.empty([len(diccionario[x].keys()),2], dtype=float)
+        matrix*=0
 
         # Recorremos todos los datos y aumentamos la celda correspondiente al atributo y a true o false
         countClase = 0
+        trues=0
+        falses=0
         for f in datostrain[:,x]:
-          filaM=f
-          matrix[filaM, datostrain[countClase,-1]] +=1
-          countClase += 1
-          if  datostrain[countClase,-1] == 1:
+          filaM=int(f)
+          c=int(datostrain[filaM,-1])
+          matrix[filaM, c] +=1
+          if  c == 1:
             trues +=1
           else:
-            flases+=1
+            falses+=1
 
         # Aplicamos la regla de Laplace
         if 0 in matrix:
           matrix = matrix +1   
-          
+          falses += len(diccionario[x].keys())
+          trues += len(diccionario[x].keys())
         matrix[:,0] = matrix[:,0]/ falses
-        matrix[:,1] = matrix[:,1]/ trues    
+        matrix[:,1] = matrix[:,1]/ trues
 
-        self.listaMatrices.append(matrix)  
+        self.listaMatrices.append(matrix)
       else:
         matrix = np.empty([2,2], dtype=float)
         false = []
@@ -106,12 +117,12 @@ class ClasificadorNaiveBayes(Clasificador):
             false.append(datostrain[filaM, x])
           else:
             true.append(datostrain[filaM, x])
+        # Calculamos la media y la varianza
         matrix[0,0]= np.mean(false)
         matrix[0,1]= np.mean(true)
         matrix[1,1]= np.var(true)
         matrix[1,0]= np.var(false)
         self.listaMatrices.append(matrix)
-        #primero media luego varianza
     pass
     
      
@@ -122,7 +133,6 @@ class ClasificadorNaiveBayes(Clasificador):
     trues=np.count_nonzero(datostest[:, -1]==1)
     total = trues+falses
     valores = []
-
     for i in range(len(datostest[0,:])):
       resT = 1
       resF = 1
@@ -132,6 +142,7 @@ class ClasificadorNaiveBayes(Clasificador):
           resF *= aux[datostest[i,j],0]
           resT *= aux[datostest[i,j],1]
         else:
+          #print(i, j)
           aux = self.listaMatrices[i]
           u = aux[0,0]
           v =  aux[1,0]
