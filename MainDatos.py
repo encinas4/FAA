@@ -9,14 +9,23 @@ from Datos import Datos
 from EstrategiaParticionado import EstrategiaParticionado
 from EstrategiaParticionado import ValidacionCruzada
 from EstrategiaParticionado import ValidacionSimple
+from EstrategiaParticionado import ValidacionBootstrap
 from Clasificador import ClasificadorNaiveBayes
 
 #dataset=Datos('f:/temp/german.data')
-dataset=Datos('balloons.data')
+dataset=Datos('german.data')
 #print(dataset.datos)
-estrategia= ValidacionSimple(0.60,2)
+estrategia= ValidacionSimple(0.25,3)
+estrategia1= ValidacionCruzada(3)
+estrategia2= ValidacionBootstrap(3)
 clasificador=ClasificadorNaiveBayes()
 #  def entrenamiento(self,datostrain,atributosDiscretos,diccionario):
-
-errores=clasificador.validacion(estrategia,dataset,clasificador, seed=None)
+#print("PRIMERO")
+#errores=clasificador.validacion(estrategia,dataset,clasificador, seed=None)
+#print(errores)
+#print("PRIMERO")
+errores=clasificador.validacion(estrategia1,dataset,clasificador, seed=None)
 print(errores)
+#print("PRIMERO")
+#errores=clasificador.validacion(estrategia2,dataset,clasificador, seed=None)
+#print(errores)

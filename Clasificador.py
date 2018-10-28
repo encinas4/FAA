@@ -1,6 +1,7 @@
 from abc import ABCMeta,abstractmethod
 import numpy as np
 import scipy.stats as norm
+import warnings
 
 class Clasificador(object):
   
@@ -29,9 +30,10 @@ class Clasificador(object):
   # TODO: implementar
   def error(self,datos,pred):
     # Aqui se compara la prediccion (pred) con las clases reales y se calcula el error
-    print(len(pred))    
+    #print(datos[:,-1])
+    #print(pred)
+    #print()    
     return np.count_nonzero(datos[:, -1] != pred)/len(pred)
-	
     
     
   # Realiza una clasificacion utilizando una estrategia de particionado determinada
@@ -47,21 +49,15 @@ class Clasificador(object):
     particionado.creaParticiones(dataset, seed)
     # Recorremos las particiones
     for particion in particionado.listaPartic:
+      #Extraemos los datos de las particiones, tanto de test como de train
       #print(particion.indicesTrain)
       #print(particion.indicesTest)
-      #Extraemos los datos de las particiones, tanto de test como de train
-      print(particion.indicesTrain)
-      print(particion.indicesTest)
       train = dataset.extraeDatos(particion.indicesTrain)
       test = dataset.extraeDatos(particion.indicesTest)
 
       # Entrenamos con los datos de train y evaluamos con los datos de test
       entrenamiento = clasificador.entrenamiento(train, dataset.tipoAtributos, dataset.diccionarios)
       evaluacion = clasificador.clasifica(test,dataset.nombreAtributos, dataset.diccionarios)
-      #print("valores:  ", evaluacion)
-      #print("MAtriz de datos", dataset.datos)
-      #print("Array evaluacion:" ,evaluacion)
-      #print("matriz test:", test[:,-1])
       errores.append(self.error(test, evaluacion))
 
     return errores
@@ -110,7 +106,7 @@ class ClasificadorNaiveBayes(Clasificador):
         matrix = np.empty([2,2], dtype=float)
         false = []
         true = []
-        for f in datostrain[:,x]:
+        for f in range(len(datostrain[:,x])):
           filaM=int(f)
           
           if  datostrain[filaM, -1] == 0:
@@ -129,25 +125,26 @@ class ClasificadorNaiveBayes(Clasificador):
     
   # TODO: implementar
   def clasifica(self,datostest,atributosDiscretos,diccionario):
+    np.seterr(divide='ignore',invalid='ignore')
     falses=np.count_nonzero(datostest[:, -1]==0)
     trues=np.count_nonzero(datostest[:, -1]==1)
     total = trues+falses
     valores = []
-    for i in range(len(datostest[0,:])):
+
+    for i in range(len(datostest[:,0])):
       resT = 1
       resF = 1
       for j in range(len(datostest[i])):
         if atributosDiscretos[j] == "Nominal":
-          aux = listaMatrices[i]
+          aux = listaMatrices[j]
           resF *= aux[datostest[i,j],0]
           resT *= aux[datostest[i,j],1]
         else:
-          #print(i, j)
-          aux = self.listaMatrices[i]
+          aux = self.listaMatrices[j]
           u = aux[0,0]
           v =  aux[1,0]
           resF *= norm.norm.pdf(datostest[i,j], u,v)
-          aux = self.listaMatrices[i]
+          aux = self.listaMatrices[j]
           u = aux[0,1]
           v =  aux[1,1]
           resT *= norm.norm.pdf(datostest[i,j], u,v)
@@ -157,5 +154,4 @@ class ClasificadorNaiveBayes(Clasificador):
         valores.append(1)
       else:
         valores.append(0)
-          #pos = valores.index(max(resT,resF))
     return valores 

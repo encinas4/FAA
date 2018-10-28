@@ -1,5 +1,6 @@
 from abc import ABCMeta,abstractmethod
 import numpy as np
+import random
 
 class Particion():
 
@@ -98,29 +99,32 @@ class ValidacionCruzada(EstrategiaParticionado):
 
 #####################################################################################################      
 class ValidacionBootstrap(EstrategiaParticionado):
+  numParticiones = 0
+  listaPartic = []
 
   def __init__(self, numeroParticiones)  :
-    nombreEstrategia = "ValidacionCruzada"
-    numParticiones = numeroParticiones
-    listaPartic = []
+    nombreEstrategia = "Validacion Cruzada"
+    self.numParticiones = numeroParticiones
 
   # Crea particiones segun el metodo de validacion por bootstrap.
   # Esta funcion devuelve una lista de particiones (clase Particion)
-  # TODO: implementar
+  # TODO: implementar 
   def creaParticiones(self,datos,seed=None):   
     posiciones=[]
-    np.random.permutation(datos)
+    nfilas = datos.numFilas
 
-    for i in range(numParticiones):
-      part = particion()
-      aux = np.random.choice(datos.numFilas, datos.numfilas, replace=true)
+    for i in range(self.numParticiones):
+      p = np.random.permutation(nfilas)
+      part = Particion()
+      
+      aux = np.random.choice(nfilas, nfilas, replace=True)
       part.indicesTrain=aux
-      aux=[]
-      for i in range(datos.numFilas):
+      aux1=[]
+      for i in range(nfilas):
         if i not in aux:
-          aux.append(i)
-      part.indicesTest=aux
-      listaPartic.add(part)
-    return listaPartic
+          aux1.append(i)
+      part.indicesTest=aux1
+      self.listaPartic.append(part)
+    return self.listaPartic
 
     
