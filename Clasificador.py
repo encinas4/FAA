@@ -38,7 +38,7 @@ class Clasificador(object):
     
   # Realiza una clasificacion utilizando una estrategia de particionado determinada
   # TODO: implementar esta funcion
-  def validacion(self,particionado,dataset,clasificador,seed=None):
+  def validacion(self,particionado,dataset,clasificador,laplace=0,seed=None):
     errores = []
     # Creamos las particiones siguiendo la estrategia llamando a particionado.creaParticiones
     # - Para validacion cruzada: en el bucle hasta nv entrenamos el clasificador con la particion de train i
@@ -56,7 +56,7 @@ class Clasificador(object):
       test = dataset.extraeDatos(particion.indicesTest)
 
       # Entrenamos con los datos de train y evaluamos con los datos de test
-      entrenamiento = clasificador.entrenamiento(train, dataset.tipoAtributos, dataset.diccionarios)
+      entrenamiento = clasificador.entrenamiento(train, dataset.tipoAtributos, dataset.diccionarios,laplace)
       evaluacion = clasificador.clasifica(test,dataset.nombreAtributos, dataset.diccionarios)
       errores.append(self.error(test, evaluacion))
 
@@ -73,7 +73,7 @@ class ClasificadorNaiveBayes(Clasificador):
 
 
   # TODO: implementar
-  def entrenamiento(self,datostrain,atributosDiscretos,diccionario):
+  def entrenamiento(self,datostrain,atributosDiscretos,diccionario,laplace=0):
     #Creamos una matriz de frecuencias por cada atributo
     for x in range(len(atributosDiscretos)):
       if atributosDiscretos[x] == "Nominal":
@@ -94,7 +94,7 @@ class ClasificadorNaiveBayes(Clasificador):
             falses+=1
 
         # Aplicamos la regla de Laplace
-        if 0 in matrix:
+        if laplace == 0:
           matrix = matrix +1   
           falses += len(diccionario[x].keys())
           trues += len(diccionario[x].keys())
