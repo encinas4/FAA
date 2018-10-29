@@ -45,7 +45,6 @@ class ValidacionSimple(EstrategiaParticionado):
       np.random.seed(seed)
       numFilas= datos.numFilas
       indice = int(self.porcentajeT*numFilas)
-      #print(indice)
       aux = Particion()
 
       for i in range(indice):
@@ -53,7 +52,6 @@ class ValidacionSimple(EstrategiaParticionado):
       for i in range(indice, numFilas):
         aux.indicesTest.append(p[i])
       self.listaPartic.append(aux)
-
     return self.listaPartic
       
       
@@ -92,7 +90,7 @@ class ValidacionCruzada(EstrategiaParticionado):
       self.listaPartic[i].indicesTrain = []
       for j in range(self.numParticiones):
         if j != i:
-          self.listaPartic[j].indicesTrain = auxPartic[j].tolist()
+          self.listaPartic[i].indicesTrain += auxPartic[j].tolist()
       
     pass
     

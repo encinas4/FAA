@@ -6,19 +6,17 @@ Created on Sun Oct 01 20:23:59 2017
 """
 
 from Datos import Datos
-from EstrategiaParticionado import EstrategiaParticionado
-from EstrategiaParticionado import ValidacionCruzada
-from EstrategiaParticionado import ValidacionSimple
-from EstrategiaParticionado import ValidacionBootstrap
-from Clasificador import ClasificadorNaiveBayes
+import EstrategiaParticionado
+import Clasificador
+import numpy as np
 
-#dataset=Datos('f:/temp/german.data')
-dataset=Datos('balloons.data')
-#print(dataset.datos)
-estrategia= ValidacionSimple(0.25,3)
-estrategia1= ValidacionCruzada(3)
-estrategia2= ValidacionBootstrap(3)
-clasificador=ClasificadorNaiveBayes()
+dataset=Datos('german.data')
+estrategia= EstrategiaParticionado.ValidacionCruzada(4)
 
-errores=clasificador.validacion(estrategia,dataset,clasificador, seed=None)
-print(errores)
+clasificador=Clasificador.ClasificadorNaiveBayes()
+errores=clasificador.validacion(estrategia,dataset,clasificador,laplace=0, seed=None)
+print("Probabilidad de error: ",errores)
+media = np.mean(errores)
+d_tipica = np.std(np.transpose(np.array(errores)), axis=0)
+print("Promedio de error: ", media)
+print("Desviación Típica: ", d_tipica)

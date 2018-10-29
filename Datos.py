@@ -63,7 +63,6 @@ class Datos(object):
 					j=j+1
 				diccionarios[i]=aux
 				i=i+1    		
-		#print(diccionarios)
 
 		# Insertamos los atributos en la matriz
 		f=0
@@ -78,8 +77,6 @@ class Datos(object):
 			f=f+1
 		self.datos = datos
 		self.diccionarios = diccionarios
-		#print(datos)
-
 
 	#TODO: implementar en la práctica 1
 	def extraeDatos(self,idx):

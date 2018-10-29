@@ -29,10 +29,7 @@ class Clasificador(object):
   # Obtiene el numero de aciertos y errores para calcular la tasa de fallo
   # TODO: implementar
   def error(self,datos,pred):
-    # Aqui se compara la prediccion (pred) con las clases reales y se calcula el error
-    #print(datos[:,-1])
-    #print(pred)
-    #print()    
+    # Aqui se compara la prediccion (pred) con las clases reales y se calcula el error  
     return np.count_nonzero(datos[:, -1] != pred)/len(pred)
     
     
@@ -50,8 +47,6 @@ class Clasificador(object):
     # Recorremos las particiones
     for particion in particionado.listaPartic:
       #Extraemos los datos de las particiones, tanto de test como de train
-      #print(particion.indicesTrain)
-      #print(particion.indicesTest)
       train = dataset.extraeDatos(particion.indicesTrain)
       test = dataset.extraeDatos(particion.indicesTest)
 
