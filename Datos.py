@@ -10,24 +10,26 @@ class Datos(object):
 	def __init__(self, nombreFichero):
 		with open(nombreFichero, "r") as f:
 			# Numero de filas del conjunto de datos
-			self.numFilas=int(f.readline().rstrip());
+			self.numFilas=int(f.readline().rstrip())
 
 			# Lista con el nombre de los atributos
-			self.nombreAtributos=f.readline().rstrip().split(",");
+			self.nombreAtributos=f.readline().rstrip().split(",")
 
 			# Lista con los tipos de los atributos
-			self.tipoAtributos=f.readline().rstrip().split(",");
+			self.tipoAtributos=f.readline().rstrip().split(",")
 
 			# Array con las posiciones de los atributos nominales
 			posiciones=[];
-			self.numeroAtributos = len(self.nombreAtributos);
+			self.numeroAtributos = len(self.nombreAtributos)
+
+			self.nominalAtributos=[]
 
 			# Matriz en la que guardaremos los datos
-			datos = np.empty([int(self.numFilas),self.numeroAtributos], dtype=float);
+			datos = np.empty([int(self.numFilas),self.numeroAtributos], dtype=float)
 
 			# Creacion del diccionario y el diccionario auxiliar (para ordenar)
-			auxDic=[set() for i in range(self.numeroAtributos)];
-			diccionarios = [None for i in range(self.numeroAtributos)];
+			auxDic=[set() for i in range(self.numeroAtributos)]
+			diccionarios = [None for i in range(self.numeroAtributos)]
 
 			# Insertamos las posiciones de los atributos nominales
 			i=0;
@@ -50,7 +52,7 @@ class Datos(object):
 						l=set();
 						l = auxDic[i]
 						l.add(x);
-						auxDic[i]= l;
+						auxDic[i]= l
 					i=i+1
 
 			# Creamos el diccionario ordenando alfabeticamente a partir del auxiliar
@@ -78,7 +80,12 @@ class Datos(object):
 		self.datos = datos
 		self.diccionarios = diccionarios
 
-	#TODO: implementar en la práctica 1
+		for i in self.tipoAtributos:
+			if i == "Nominal":
+				self.nominalAtributos.append(True)
+			else:
+				self.nominalAtributos.append(False)
+		
 	def extraeDatos(self,idx):
 		return self.datos[idx,:]
 

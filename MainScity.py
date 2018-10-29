@@ -8,5 +8,6 @@ Created on Sun Oct 01 20:23:59 2017
 from ClasificadorScity import ValidacionSimple
 from ClasificadorScity import ValidacionCruzada
 
-ValidacionSimple('balloons.data')
-ValidacionCruzada('balloons.data',0,3)
+print(ValidacionSimple('tic-tac-toe.data'))
+print()
+print(ValidacionCruzada('tic-tac-toe.data',0,3))

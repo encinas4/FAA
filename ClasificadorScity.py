@@ -9,7 +9,7 @@ from sklearn.model_selection import cross_val_predict
 
 def ValidacionSimple(fichero,laplace=0):
 	dataset=Datos(fichero)
-	encAtributos =preprocessing.OneHotEncoder(categorical_features=dataset.tipoAtributos[:-1],sparse=False)
+	encAtributos =preprocessing.OneHotEncoder(categorical_features=dataset.nominalAtributos[:-1],sparse=False)
 	x = encAtributos.fit_transform(dataset.datos[:,:-1])
 	y = dataset.datos[:,-1] 
 	xtrain, xtest, ytrain, ytest = train_test_split(x,y)
@@ -24,13 +24,13 @@ def ValidacionSimple(fichero,laplace=0):
 
 def ValidacionCruzada(fichero, laplace, part=3):
 	dataset=Datos(fichero)
-	encAtributos = preprocessing.OneHotEncoder(categorical_features=dataset.tipoAtributos[:-1],sparse=False)
+	encAtributos = preprocessing.OneHotEncoder(categorical_features=dataset.nominalAtributos[:-1],sparse=False)
 	x = encAtributos.fit_transform(dataset.datos[:,:-1])
 	y = dataset.datos[:,-1] 
 	clf = naive_bayes.MultinomialNB(alpha=laplace, fit_prior=True)
 	clf = naive_bayes.GaussianNB()
     
-	scores = cross_val_score(clf, X, Y, cv = part)
-	prediccionesCruzada = cross_val_predict(clf, x, y, cv = part)
+	score = cross_val_score(clf, x, y, cv = part)
+	pred = cross_val_predict(clf, x, y, cv = part)
 	return pred, score
 
