@@ -7,7 +7,25 @@ Created on Sun Oct 01 20:23:59 2017
 
 from ClasificadorScity import ValidacionSimple
 from ClasificadorScity import ValidacionCruzada
+import numpy as np
 
-print(ValidacionSimple('tic-tac-toe.data'))
+errores=[]
+print("Validacion Simple:")
+errores.append(ValidacionSimple('german.data')[1])
+errores.append(ValidacionSimple('german.data')[1])
+errores.append(ValidacionSimple('german.data')[1])
+print(errores)
+media = np.mean(errores)
+d_tipica = np.std(np.transpose(np.array(errores)), axis=0)
+print("Promedio de error: ", media)
+print("Desviación Típica: ", d_tipica)
 print()
-print(ValidacionCruzada('tic-tac-toe.data',0,3))
+
+errores=[]
+print("Validacion Cruzada");
+errores = ValidacionCruzada('german.data',0.1,3)[1]
+print(errores)
+media = np.mean(errores)
+d_tipica = np.std(np.transpose(np.array(errores)), axis=0)
+print("Promedio de error: ", media)
+print("Desviación Típica: ", d_tipica)

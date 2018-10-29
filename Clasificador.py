@@ -53,6 +53,7 @@ class Clasificador(object):
       # Entrenamos con los datos de train y evaluamos con los datos de test
       entrenamiento = clasificador.entrenamiento(train, dataset.tipoAtributos, dataset.diccionarios,laplace)
       evaluacion = clasificador.clasifica(test,dataset.nombreAtributos, dataset.diccionarios)
+      print(evaluacion)
       errores.append(self.error(test, evaluacion))
 
     return errores
@@ -88,7 +89,8 @@ class ClasificadorNaiveBayes(Clasificador):
             falses+=1
 
         # Aplicamos la regla de Laplace
-        if laplace == 0:
+        if laplace == 1 and 0 in matrix:
+          print("Se aplica la correccion")
           matrix = matrix +1   
           falses += len(diccionario[x].keys())
           trues += len(diccionario[x].keys())

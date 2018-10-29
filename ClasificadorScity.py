@@ -1,4 +1,3 @@
-
 from Datos import Datos
 from sklearn import preprocessing 
 from sklearn.model_selection import train_test_split, ShuffleSplit
@@ -7,7 +6,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import cross_val_predict
 
 
-def ValidacionSimple(fichero,laplace=0):
+def ValidacionSimple(fichero,laplace=0.1):
 	dataset=Datos(fichero)
 	encAtributos =preprocessing.OneHotEncoder(categorical_features=dataset.nominalAtributos[:-1],sparse=False)
 	x = encAtributos.fit_transform(dataset.datos[:,:-1])
@@ -22,7 +21,7 @@ def ValidacionSimple(fichero,laplace=0):
 	return pred, score
 
 
-def ValidacionCruzada(fichero, laplace, part=3):
+def ValidacionCruzada(fichero, laplace=0.1, part=3):
 	dataset=Datos(fichero)
 	encAtributos = preprocessing.OneHotEncoder(categorical_features=dataset.nominalAtributos[:-1],sparse=False)
 	x = encAtributos.fit_transform(dataset.datos[:,:-1])
