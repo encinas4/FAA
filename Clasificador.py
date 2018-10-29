@@ -54,6 +54,7 @@ class Clasificador(object):
       entrenamiento = clasificador.entrenamiento(train, dataset.tipoAtributos, dataset.diccionarios,laplace)
       evaluacion = clasificador.clasifica(test,dataset.nombreAtributos, dataset.diccionarios)
       errores.append(self.error(test, evaluacion))
+      clasificador.calcularMatrizConfusion(test, evaluacion)
 
     return errores
        
@@ -62,9 +63,10 @@ class Clasificador(object):
 
 class ClasificadorNaiveBayes(Clasificador):
   listaMatrices = []
+  listaMatricConfusion=[]
   def _init_(self):
     self.listaMatrices=[]
-
+    self.listaMatricConfusion=[]
 
   # TODO: implementar
   def entrenamiento(self,datostrain,atributosDiscretos,diccionario,laplace=0):
@@ -89,7 +91,6 @@ class ClasificadorNaiveBayes(Clasificador):
 
         # Aplicamos la regla de Laplace
         if laplace == 1 and 0 in matrix:
-          print("Se aplica la correccion")
           matrix = matrix +1   
           falses += len(diccionario[x].keys())
           trues += len(diccionario[x].keys())
@@ -150,3 +151,25 @@ class ClasificadorNaiveBayes(Clasificador):
       else:
         valores.append(0)
     return valores 
+
+  def calcularMatrizConfusion(self, datos, pred):
+    aux = np.empty([2,2], dtype=int)
+    aux*=0
+
+    print(datos[:,-1])
+    print(pred)
+    print()
+
+    for i in range(len(datos[:,-1])):
+      if pred[i]==1:
+        if datos[i,-1]==1:
+          aux[0,0]+=1
+        else:
+          aux[0,1]+=1
+      else:
+        if datos[i,-1]==1:
+          aux[1,0]+=1
+        else: 
+          aux[1,1]+=1
+    self.listaMatricConfusion.append(aux)
+    pass
