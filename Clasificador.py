@@ -53,7 +53,6 @@ class Clasificador(object):
       # Entrenamos con los datos de train y evaluamos con los datos de test
       entrenamiento = clasificador.entrenamiento(train, dataset.tipoAtributos, dataset.diccionarios,laplace)
       evaluacion = clasificador.clasifica(test,dataset.nombreAtributos, dataset.diccionarios)
-      print(evaluacion)
       errores.append(self.error(test, evaluacion))
 
     return errores
