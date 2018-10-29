@@ -56,7 +56,6 @@ class Clasificador(object):
       errores.append(self.error(test, evaluacion))
 
     return errores
-    pass    
        
   
 ##############################################################################

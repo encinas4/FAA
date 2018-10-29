@@ -14,7 +14,7 @@ dataset=Datos('german.data')
 estrategia= EstrategiaParticionado.ValidacionCruzada(4)
 
 clasificador=Clasificador.ClasificadorNaiveBayes()
-errores=clasificador.validacion(estrategia,dataset,clasificador,laplace=0, seed=None)
+errores=clasificador.validacion(estrategia,dataset,clasificador,laplace=1, seed=None)
 print("Probabilidad de error: ",errores)
 media = np.mean(errores)
 d_tipica = np.std(np.transpose(np.array(errores)), axis=0)
