@@ -11,22 +11,13 @@ import Clasificador
 import numpy as np
 from RedBayesiana import MatrizDeConfusion
 
-dataset=Datos('german.data')
-estrategia= EstrategiaParticionado.ValidacionCruzada(4)
+dataset=Datos('balloons.data')
+estrategia= EstrategiaParticionado.ValidacionSimple(0.75, 4)
 
-clasificador=Clasificador.ClasificadorNaiveBayes()
+clasificador=Clasificador.ClasificadorVecinosProximos(4,True)
 errores=clasificador.validacion(estrategia,dataset,clasificador,laplace=1, seed=None)
 print("Probabilidad de error: ",errores)
 media = np.mean(errores)
 d_tipica = np.std(np.transpose(np.array(errores)), axis=0)
 print("Promedio de error: ", media)
-print("Desviación Típica: ", d_tipica)
-print(clasificador.listaMatricConfusion)
-
-m = MatrizDeConfusion()
-m.calcular(clasificador.listaMatricConfusion)
-
-print(m.TPR)
-print(m.FNR)
-print(m.FPR)
-print(m.TNR)
+print("Desviacion Tipica: ", d_tipica)

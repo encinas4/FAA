@@ -2,6 +2,9 @@ from abc import ABCMeta,abstractmethod
 import numpy as np
 import scipy.stats as norm
 import warnings
+import math as math
+import collections as collections 
+
 
 class Clasificador(object):
   
@@ -52,12 +55,12 @@ class Clasificador(object):
 
       # Entrenamos con los datos de train y evaluamos con los datos de test
       entrenamiento = clasificador.entrenamiento(train, dataset.tipoAtributos, dataset.diccionarios,laplace)
-      evaluacion = clasificador.clasifica(test,dataset.nombreAtributos, dataset.diccionarios)
+      evaluacion = clasificador.clasifica(test,dataset.tipoAtributos, dataset.diccionarios)
       errores.append(self.error(test, evaluacion))
       clasificador.calcularMatrizConfusion(test, evaluacion)
 
     return errores
-       
+
   
 ##############################################################################
 
@@ -156,10 +159,7 @@ class ClasificadorNaiveBayes(Clasificador):
     aux = np.empty([2,2], dtype=int)
     aux*=0
 
-    print(datos[:,-1])
-    print(pred)
-    print()
-
+    
     for i in range(len(datos[:,-1])):
       if pred[i]==1:
         if datos[i,-1]==1:
@@ -176,7 +176,13 @@ class ClasificadorNaiveBayes(Clasificador):
 
 ################################################
 class ClasificadorVecinosProximos(Clasificador):
-  def _init_(self, k=2, norm=True):
+  listaMatrices=[]#0 media 1 std
+  norm=norm
+  listaMatrices=[]#0 media 1 std
+  datosTrain = None
+  k=0
+
+  def __init__(self, k, norm):
     self.k=k
     self.norm=norm
     self.listaMatrices=[]#0 media 1 std
@@ -184,59 +190,66 @@ class ClasificadorVecinosProximos(Clasificador):
 
   def entrenamiento(self, train):
     for i in range(len(train[0]-1)):
-      sum = np.sum(datostrain[:,i])
+      sum = np.sum(train[:,i])
       aux=[]
       aux.append(sum/len(train[:,i]))
       aux.append(np.std(train[:,i]))
       self.listaMatrices.append(aux)
     pass
-  def normalizarDatos(self,datos):
-    for i in range(len(datosTrain[0]-1)):
-      if datos.tipoAtributos[i]=="Continuo":
+
+  def normalizarDatos(self,datos, tipoAtributos):
+    for i in range(len(datos[0]-1)):
+      if tipoAtributos[i]=="Continuo":
         datos.datos[:,i]= (datos.datos[:,i] - self.listaMatrices[i,0])/self.listaMatrices[i,1]
  
-  def clasifica(self, test, train, atributosDiscretos, diccionario):
+  def clasifica(self, test, train, tipoAtributos, diccionario):
     distancias=[]
     elem=[]
     if(self.norm):
-      normalizarDatos(test)
+      self.normalizarDatos(test,tipoAtributos)
     for datosTest in test:
           distancias = []
                   
           for datosTrain in train:
               d = 0
               for i in range(len(datosTest)-1):
-                  distancia += (datosTest[i]-datosTrain[i])**2
-              distEuclidea = math.sqrt(distancia)
+                  d += (datosTest[i]-datosTrain[i])**2
+              distEuclidea = math.sqrt(d)
               aux=[]
               aux.append(distEuclidea)
               aux.append(datosTrain[-1])
               distancias.append(aux)
+
+          
           sortedD=sorted(distancias)
           clase=[]
           for j in range(self.k):
-            clase.append(sorted[i][1])
-
+            clase.append(sortedD[j][1])
           clase = collections.Counter(clase)
-          elem.append(clase.most_common()[0][0])
-          return np.array(claseElem)        
+          elem.append(clase.most_common()[0])
+    return np.array(elem)        
 
-  def validacion(self,particionado,dataset,clasificador, Laplace=0 , seed=None, constAprend = 1, nepocas = 1):
-     aux = []
-      particiones = particionado.creaParticiones(dataset.datos, seed)
+  def validacion(self,particionado,dataset,clasificador, laplace=0 , seed=None, constAprend = 1, nepocas = 1):
+    aux = []
+    particionado.creaParticiones(dataset, seed)
 
-      for i in range(particionado.numeroParticiones):
-          train = dataset.extraeDatosTrain(particiones[i].indicesTrain)
-          test = dataset.extraeDatosTest(particiones[i].indicesTest)
-          clasificador.entrenamiento(dataTrain)
-          if normaliza == True:
-              datos2 = datos
-              datos2.datos = dataTrain
-              clasificador.normalizarDatos(datos2)
-              clasificador.train = datos2.datos
-          else:
-              clasificador.train = dataTrain
-          clases = clasificador.clasifica(test,train, dataset.nominalAtributos,dataset.diccionarios)
-          aux.append(clasificador.error(test[:,-1], clases))
+    for i in range(particionado.numParticiones):
+      train = dataset.extraeDatos(particionado.listaPartic[i].indicesTrain)
+      test = dataset.extraeDatos(particionado.listaPartic[i].indicesTest)
+      clasificador.entrenamiento(train)
+      if norm == True:
+        datos2 = dataset
+        datos2.datos = train
+        clasificador.normalizarDatos(datos2)
+        clasificador.train = datos2.datos
+       
+      else:
+          clasificador.train = train
 
-      return aux
+
+      clases = clasificador.clasifica(test,train, dataset.nominalAtributos,dataset.diccionarios)
+      print(clases[:,0])
+      print(test[:,-1])
+      aux.append(clasificador.error(test, clases[:,0]))
+      print(aux)
+    return aux
