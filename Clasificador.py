@@ -219,10 +219,13 @@ class ClasificadorVecinosProximos(Clasificador):
 
   def normalizarDatos(self,datos, tipoAtributos):
     print(datos)
+    #print(tipoAtributos)
     for i in range(len(datos[0])-1):
-      if not tipoAtributos[i]:
+      if tipoAtributos[i] == "Continuo":
         datos[:,i]= (datos[:,i] - self.listaMatrices[i][0])/self.listaMatrices[i][1]
-    
+        #print("dato",datos[:,i] )
+        #print("media", self.listaMatrices[i][0])
+        #print("varianza", self.listaMatrices[i][1])
     print(datos)
     print(self.listaMatrices[-1][0], self.listaMatrices[-1][1])
     pass
