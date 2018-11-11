@@ -273,6 +273,18 @@ class ClasificadorRegresionLogistica(Clasificador):
     self.epocas= nepocas
     self.constAprend=cons
 
+  def validacion(self,particionado,dataset,clasificador, laplace=0 , seed=None):
+    aux = []
+    particionado.creaParticiones(dataset, seed)
+
+    for i in range(particionado.numParticiones):
+      train = dataset.extraeDatos(particionado.listaPartic[i].indicesTrain)
+      test = dataset.extraeDatos(particionado.listaPartic[i].indicesTest)
+      clasificador.entrenamiento(train)
+      clases = clasificador.clasifica(test)
+      aux.append(clasificador.error(test, clases))
+    return aux
+
   # TODO: implementar
   def entrenamiento(self,datostrain):
     auxW = np.random.uniform(low=-0.5, high=0.5, size=(len(datostrain[0]),))   
@@ -280,6 +292,7 @@ class ClasificadorRegresionLogistica(Clasificador):
       for train in datostrain:
         t=np.insert(auxW[:-1],0,1)
         a = sum(auxW*t)
+        print("HEY:", a)
         r=1/(1+ math.exp(-a))
         auxW = auxW -(self.constAprend*(r-train[-1]))*t
     self.listaW=auxW
@@ -295,16 +308,4 @@ class ClasificadorRegresionLogistica(Clasificador):
         aux.append(1)
       else:
         aux.append(0)
-    return aux
-
-  def validacion(self,particionado,dataset,clasificador, laplace=0 , seed=None):
-    aux = []
-    particionado.creaParticiones(dataset, seed)
-
-    for i in range(particionado.numParticiones):
-      train = dataset.extraeDatos(particionado.listaPartic[i].indicesTrain)
-      test = dataset.extraeDatos(particionado.listaPartic[i].indicesTest)
-      clasificador.entrenamiento(train)
-      clases = clasificador.clasifica(test)
-      aux.append(clasificador.error(test, clases))
     return aux
