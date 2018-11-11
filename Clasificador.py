@@ -258,3 +258,53 @@ class ClasificadorVecinosProximos(Clasificador):
       clase = collections.Counter(clase)
       elem.append(clase.most_common()[0])
     return np.array(elem)        
+
+
+
+    ############################################
+
+class ClasificadorRegresionLogistica(Clasificador): 
+  litaW=[]
+  listaR=[]
+  epocas=None
+  constAprend = 1
+  def __init__(self,nepocas, cons=1):
+    self.listaA=[]
+    self.epocas= nepocas
+    self.constAprend=cons
+
+  # TODO: implementar
+  def entrenamiento(self,datostrain):
+    auxW = np.random.uniform(low=-0.5, high=0.5, size=(len(datostrain[0]),))   
+    for i in range(self.epocas):
+      for train in datostrain:
+        t=np.insert(auxW[:-1],0,1)
+        a = sum(auxW*t)
+        r=1/(1+ math.exp(-a))
+        auxW = auxW -(self.constAprend*(r-train[-1]))*t
+    self.listaW=auxW
+
+
+  def clasifica(self, test):
+    aux =[]
+    for datosTest in test:
+      elem =np.insert(datosTest[:-1],0,1)
+      a = sum(elem*self.listaW)
+      r = 1/(1+math.exp(-a))
+      if r > 0.5:
+        aux.append(1)
+      else:
+        aux.append(0)
+    return aux
+
+  def validacion(self,particionado,dataset,clasificador, laplace=0 , seed=None):
+    aux = []
+    particionado.creaParticiones(dataset, seed)
+
+    for i in range(particionado.numParticiones):
+      train = dataset.extraeDatos(particionado.listaPartic[i].indicesTrain)
+      test = dataset.extraeDatos(particionado.listaPartic[i].indicesTest)
+      clasificador.entrenamiento(train)
+      clases = clasificador.clasifica(test)
+      aux.append(clasificador.error(test, clases))
+    return aux
