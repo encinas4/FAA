@@ -10,11 +10,11 @@ import EstrategiaParticionado
 import numpy as np
 
 
-data='ConjuntosDatos/wdbc.data'
+data='ConjuntosDatos/example4.data'
 #estrategia= EstrategiaParticionado.ValidacionSimple(0.25,5)
-#estrategia= EstrategiaParticionado.ValidacionCruzada(10)
-estrategia= EstrategiaParticionado.ValidacionBootstrap(10)
-errores = VecinosProximos(data, 10, estrategia)
+estrategia= EstrategiaParticionado.ValidacionCruzada(10)
+#estrategia= EstrategiaParticionado.ValidacionBootstrap(10)
+errores = VecinosProximos(data, 10, estrategia, True)
 print(errores)
 media = np.mean(errores)
 d_tipica = np.std(np.transpose(np.array(errores)), axis=0)
