@@ -9,7 +9,7 @@ from Datos import Datos
 import EstrategiaParticionado
 import Clasificador
 import numpy as np
-from RedBayesiana import MatrizDeConfusion
+
 for i in range(4):
 	a=i+1
 	data = 'ConjuntosDatos/example'+str(a)+ '.data'
