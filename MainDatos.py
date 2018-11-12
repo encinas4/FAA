@@ -18,7 +18,7 @@ for i in range(4):
 	estrategia= EstrategiaParticionado.ValidacionSimple(0.25,1)
 	#clasificador=Clasificador.ClasificadorVecinosProximos(1,True)
 	clasificador=Clasificador.ClasificadorRegresionLogistica(10)
-	errores=clasificador.validacion(estrategia,dataset,clasificador,laplace=1, seed=None)
+	errores=clasificador.validacion(estrategia,dataset,clasificador)
 	print("Probabilidad de error: ",errores)
 	media = np.mean(errores)
 	d_tipica = np.std(np.transpose(np.array(errores)), axis=0)

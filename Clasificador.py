@@ -10,7 +10,9 @@ class Clasificador(object):
   
   # Clase abstracta
   __metaclass__ = ABCMeta
-  
+  listaMatrices = []
+  def _init_(self):
+    self.listaMatrices=[]
   # Metodos abstractos que se implementan en casa clasificador concreto
   @abstractmethod
   # TODO: esta funcion deben ser implementadas en cada clasificador concreto
@@ -61,7 +63,43 @@ class Clasificador(object):
 
     return errores
 
-  
+
+  def calcularMedDesv(self, train):
+    for i in range(len(train[0]-1)):
+      sum = np.sum(train[:,i])
+      aux=[]
+      aux.append(sum/len(train[:,i]))
+      aux.append(np.std(train[:,i]))
+      self.listaMatrices.append(aux)
+    pass
+
+
+  def normalizarDatos(self,datos, tipoAtributos):
+    for i in range(len(datos[0])-1):
+      if tipoAtributos[i] == "Continuo":
+        datos[:,i]= (datos[:,i] - self.listaMatrices[i][0])/self.listaMatrices[i][1]
+    pass
+
+  def validacion(self,particionado,dataset,clasificador, laplace=0 , seed=None, constAprend = 1, nepocas = 1):
+    aux = []
+    particionado.creaParticiones(dataset, seed)
+
+    for i in range(particionado.numParticiones):
+      train = dataset.extraeDatos(particionado.listaPartic[i].indicesTrain)
+      test = dataset.extraeDatos(particionado.listaPartic[i].indicesTest)
+      if norm:
+        clasificador.calcularMedDesv(test)
+        clasificador.normalizarDatos(test, dataset.tipoAtributos)
+
+      clasificador.entrenamiento(train)
+      if norm:
+        clasificador.normalizarDatos(train, dataset.tipoAtributos)
+
+      clases = clasificador.clasifica(test,train, dataset.nominalAtributos,dataset.diccionarios)
+      aux.append(clasificador.error(test, clases))
+    return aux
+
+
 ##############################################################################
 
 class ClasificadorNaiveBayes(Clasificador):
@@ -207,21 +245,7 @@ class ClasificadorVecinosProximos(Clasificador):
     self.calcularMedDesv(train)
     pass
 
-  def calcularMedDesv(self, train):
-    for i in range(len(train[0]-1)):
-      sum = np.sum(train[:,i])
-      aux=[]
-      aux.append(sum/len(train[:,i]))
-      aux.append(np.std(train[:,i]))
-      self.listaMatrices.append(aux)
-    pass
-
-
-  def normalizarDatos(self,datos, tipoAtributos):
-    for i in range(len(datos[0])-1):
-      if tipoAtributos[i] == "Continuo":
-        datos[:,i]= (datos[:,i] - self.listaMatrices[i][0])/self.listaMatrices[i][1]
-    pass
+  
  
   def clasifica(self, test, train, tipoAtributos, diccionario):
     distancias=[]
@@ -266,37 +290,33 @@ class ClasificadorRegresionLogistica(Clasificador):
     self.epocas= nepocas
     self.constAprend=cons
 
-  def validacion(self,particionado,dataset,clasificador, laplace=0 , seed=None):
-    aux = []
-    particionado.creaParticiones(dataset, seed)
-
-    for i in range(particionado.numParticiones):
-      train = dataset.extraeDatos(particionado.listaPartic[i].indicesTrain)
-      test = dataset.extraeDatos(particionado.listaPartic[i].indicesTest)
-      clasificador.entrenamiento(train)
-      clases = clasificador.clasifica(test)
-      aux.append(clasificador.error(test, clases))
-    return aux
+  
 
   # TODO: implementar
-  def entrenamiento(self,datostrain):
+  def entrenamiento(self,datostrain, norm=True):
+   
     auxW = np.random.uniform(low=-0.5, high=0.5, size=(len(datostrain[0]),))   
     for i in range(self.epocas):
       for train in datostrain:
         t=np.insert(auxW[:-1],0,1)
         a = sum(auxW*t)
-        print("HEY:", a)
-        r=1/(1+ math.exp(-a))
+        if a > 700:
+          r=0
+        else:
+          r=math.exp(a)/(1+ math.exp(a))
         auxW = auxW -(self.constAprend*(r-train[-1]))*t
     self.listaW=auxW
 
 
-  def clasifica(self, test):
+  def clasifica(self, test, train, tipoAtributos, diccionario):
     aux =[]
     for datosTest in test:
       elem =np.insert(datosTest[:-1],0,1)
       a = sum(elem*self.listaW)
-      r = 1/(1+math.exp(-a))
+      if a >700:
+        r=0
+      else:
+        r = math.exp(a)/(1+ math.exp(a))
       if r > 0.5:
         aux.append(1)
       else:
