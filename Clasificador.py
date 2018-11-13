@@ -4,7 +4,7 @@ import scipy.stats as norm
 import warnings
 import math as math
 import collections as collections 
-
+import copy
 
 class Clasificador(object):
   
@@ -235,23 +235,44 @@ class ClasificadorVecinosProximos(Clasificador):
 
       clasificador.entrenamiento(train)
       if norm:
-        clasificador.normalizarDatos(train, dataset.tipoAtributos)
+        copia = copy.copy(dataset)
+        copia.datos = train
+        clasificador.normalizarDatos(copia.datos, dataset.nominalAtributos)
+        clasificador.datosTrain = copia.datos
+      else:
+        clasificador.datosTrain = train
 
-      clases = clasificador.clasifica(test,train, dataset.nominalAtributos,dataset.diccionarios)
-      aux.append(clasificador.error(test, clases[:,0]))
+      clases = clasificador.clasifica(test,train, dataset.diccionarios, dataset.nominalAtributos)
+      aux.append(clasificador.error(test,clases))
     return aux
 
   def entrenamiento(self, train):
     self.calcularMedDesv(train)
     pass
 
-  
+  def calcularMedDesv(self, train):
+    for i in range(len(train[0]-1)):
+      suma = np.sum(train[:,i])
+      aux=[]
+      aux.append(suma/len(train[:,i]))
+      aux.append(np.std(train[:,i]))
+      self.listaMatrices.append(aux)
+    pass
+
+  def normalizarDatos(self,datos, atributosDiscretos):
+    for i in range(len(datos[0])-1):
+      if atributosDiscretos[i] == False:
+        datos[:,i]= (datos[:,i] - self.listaMatrices[i][0])/self.listaMatrices[i][1]
+    pass  
  
-  def clasifica(self, test, train, tipoAtributos, diccionario):
+  def clasifica(self, test, train, diccionario, atributosDiscretos): 
     distancias=[]
     elem=[]
     if(self.k>len(train)):
       print("El numero de vecinos no puede ser mayor al de la particion de train")
+    
+    if norm:
+      self.normalizarDatos(test, atributosDiscretos)
 
     for datosTest in test:
       distancias = []
@@ -273,7 +294,7 @@ class ClasificadorVecinosProximos(Clasificador):
       for j in range(self.k):
         clase.append(sortedD[j][1])
       clase = collections.Counter(clase)
-      elem.append(clase.most_common()[0])
+      elem.append(clase.most_common()[0][0])
     return np.array(elem)        
 
 
