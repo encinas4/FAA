@@ -10,6 +10,7 @@ import EstrategiaParticionado
 import Clasificador
 import numpy as np
 
+
 for i in range(4):
 	a=i+1
 	data = 'ConjuntosDatos/example'+str(a)+ '.data'

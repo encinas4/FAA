@@ -6,6 +6,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import cross_val_predict
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import StandardScaler
 
 ###############################################################################################
@@ -64,7 +65,7 @@ def VecinosProximos(fichero, K, particionado, seed=None, norm=True):
 ###############################################################################################
 #SCIKIT LEARN REGRESION LOGISTICA
 
-def RegresionLogistica(fichero, K, particionado, seed=None, norm=True):
+def RegresionLogistica(fichero, Kepocas, particionado, Kaprendizaje=1,norm=True,seed=None):
 	aux = []
 	dataset=Datos(fichero)
 	particionado.creaParticiones(dataset, seed)
@@ -74,12 +75,13 @@ def RegresionLogistica(fichero, K, particionado, seed=None, norm=True):
 	for i in range(particionado.numParticiones):
 		train = dataset.extraeDatos(particionado.listaPartic[i].indicesTrain)
 		test = dataset.extraeDatos(particionado.listaPartic[i].indicesTest)
-	  	if(norm):
+		if(norm):
 	  		scaler.fit(train)
 	  		scaler.fit(test)
 	  		scaler.transform(train)
 	  		scaler.transform(test)
-		res = LogisticRegression()
+		#res = LogisticRegression()
+		res = SGDClassifier(loss='log', max_iter=Kepocas, learning_rate='optimal', alpha = Kaprendizaje)
 		res.fit(train[:,:-1],train[:,-1])
 		aux.append(1-(res.score(test[:,:-1],test[:,-1])))
 	return aux
