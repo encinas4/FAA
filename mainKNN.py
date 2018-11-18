@@ -13,7 +13,7 @@ data = 'ConjuntosDatos/wdbc.data'
 dataset=Datos(data)
 #estrategia= EstrategiaParticionado.ValidacionSimple(0.25,5)
 estrategia= EstrategiaParticionado.ValidacionCruzada(10)
-#estrategia= EstrategiaParticionado.ValidacionBootstrap(10)
+#estrategia= EstrategiaParticionado.ValidacionBootstrap(10)s
 clasificador=Clasificador.ClasificadorVecinosProximos(51,False)
 errores=clasificador.validacion(estrategia,dataset,clasificador,laplace=1, seed=None)
 print("Probabilidad de error: ",errores)
