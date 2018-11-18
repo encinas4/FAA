@@ -12,11 +12,10 @@ def plotModel(x,y,clase,clf,title,nominalAtributos,diccionarios,train):
     hx = (x_max - x_min)/100.
     hy = (y_max - y_min)/100.
 
-
     xx, yy = np.meshgrid(np.arange(x_min, x_max, hx), np.arange(y_min, y_max, hy))
 
     if isinstance(clf, Clasificador.Clasificador):
-        z = clf.clasifica(np.c_[xx.ravel(), yy.ravel()], train,diccionarios ,nominalAtributos)   
+        z = clf.clasifica(np.c_[xx.ravel(), yy.ravel(), np.zeros(len(yy.ravel()))], train,diccionarios ,nominalAtributos)   
     elif hasattr(clf, "decision_function"):
         z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
     else:
@@ -24,7 +23,6 @@ def plotModel(x,y,clase,clf,title,nominalAtributos,diccionarios,train):
     
     z = np.copy(z) # linea adicional
     z = z.reshape(xx.shape)
-    
     cm = plt.cm.RdBu
     cm_bright = ListedColormap(['#FF0000', '#0000FF'])
     #ax = plt.subplot(1, 1, 1)

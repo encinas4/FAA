@@ -4,13 +4,14 @@ import EstrategiaParticionado
 import Clasificador
 import numpy as np
 from plotModel import plotModel
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 
 data = 'ConjuntosDatos/example1.data'
 dataset=Datos(data)
 #estrategia= EstrategiaParticionado.ValidacionSimple(0.25,5)
 estrategia= EstrategiaParticionado.ValidacionCruzada(10)
 #estrategia= EstrategiaParticionado.ValidacionBootstrap(10)
+
 clasificador=Clasificador.ClasificadorVecinosProximos(51,True)
 errores=clasificador.validacion(estrategia,dataset,clasificador,laplace=1, seed=None)
 print("Probabilidad de error: ",errores)
@@ -25,3 +26,4 @@ plotModel(dataset.datos[ii,0],dataset.datos[ii,1],dataset.datos[ii,-1]!=0,clasif
 plt.figure()
 plt.plot(dataset.datos[dataset.datos[:,-1] == 0,0], dataset.datos[dataset.datos[:,-1] == 0,1], 'bo')
 plt.plot(dataset.datos[dataset.datos[:,-1] == 1,0], dataset.datos[dataset.datos[:,-1] == 1,1], 'ro')
+plt.show()
