@@ -319,12 +319,15 @@ class ClasificadorRegresionLogistica(Clasificador):
   listaR=[]
   epocas=None
   constAprend = 1
+  norm = True
 
   #Constructor de regresion logistica, nepocas es el numero de epocas que introduzcamos y cons es la constante de aprendizaje por defecto a 1
-  def __init__(self,nepocas, cons=1):
+  def __init__(self,nepocas, cons=1, norm=True):
     self.listaA=[]
     self.epocas= nepocas
     self.constAprend=cons
+    self.norm=norm
+
 
   # Metodo de entrenamiento
   def entrenamiento(self,datostrain, norm=True):

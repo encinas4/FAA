@@ -6,15 +6,10 @@ import numpy as np
 from plotModel import plotModel
 import matplotlib.pyplot as plt
 
-data = 'ConjuntosDatos/example4.data'
+data = 'ConjuntosDatos/example1.data'
 dataset=Datos(data)
-#estrategia= EstrategiaParticionado.ValidacionSimple(0.25,5)
 estrategia= EstrategiaParticionado.ValidacionCruzada(10)
-#estrategia= EstrategiaParticionado.ValidacionBootstrap(10)
-
-clasificador=Clasificador.ClasificadorVecinosProximos(3,True)
-#clasificador=Clasificador.ClasificadorRegresionLogistica(100)
-
+clasificador=Clasificador.ClasificadorRegresionLogistica(100)
 errores=clasificador.validacion(estrategia,dataset,clasificador,laplace=1, seed=None)
 print("Probabilidad de error: ",errores)
 media = np.mean(errores)
