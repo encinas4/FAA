@@ -25,6 +25,7 @@ class EstrategiaParticionado(object):
   
 
 #####################################################################################################
+#VALIDACION SIMPLE
 
 class ValidacionSimple(EstrategiaParticionado):
   listaPartic = [] 
@@ -55,7 +56,9 @@ class ValidacionSimple(EstrategiaParticionado):
     return self.listaPartic
       
       
-#####################################################################################################      
+#####################################################################################################  
+#VALIDACION CRUZADA
+
 class ValidacionCruzada(EstrategiaParticionado):
   numParticiones = 0
   listaPartic = []
@@ -95,7 +98,9 @@ class ValidacionCruzada(EstrategiaParticionado):
     pass
     
 
-#####################################################################################################      
+#####################################################################################################
+#VALIDACION POR BOOTSTRAP
+      
 class ValidacionBootstrap(EstrategiaParticionado):
   numParticiones = 0
   listaPartic = []

@@ -10,18 +10,15 @@ import EstrategiaParticionado
 import Clasificador
 import numpy as np
 
-
-for i in range(4):
-	a=i+1
-	data = 'ConjuntosDatos/example'+str(a)+ '.data'
-	dataset=Datos(data)
-	#estrategia= EstrategiaParticionado.ValidacionSimple(0.25, 1)
-	estrategia= EstrategiaParticionado.ValidacionSimple(0.25,1)
-	#clasificador=Clasificador.ClasificadorVecinosProximos(1,True)
-	clasificador=Clasificador.ClasificadorRegresionLogistica(10)
-	errores=clasificador.validacion(estrategia,dataset,clasificador)
-	print("Probabilidad de error: ",errores)
-	media = np.mean(errores)
-	d_tipica = np.std(np.transpose(np.array(errores)), axis=0)
-	print("Promedio de error: ", media)
-	print("Desviacion Tipica: ", d_tipica)
+data = 'ConjuntosDatos/example1.data'
+dataset=Datos(data)
+#estrategia= EstrategiaParticionado.ValidacionSimple(0.25, 1)
+estrategia= EstrategiaParticionado.ValidacionSimple(0.25,1)
+#clasificador=Clasificador.ClasificadorVecinosProximos(1,True)
+clasificador=Clasificador.ClasificadorRegresionLogistica(10)
+errores=clasificador.validacion(estrategia,dataset,clasificador)
+print("Probabilidad de error: ",errores)
+media = np.mean(errores)
+d_tipica = np.std(np.transpose(np.array(errores)), axis=0)
+print("Promedio de error: ", media)
+print("Desviacion Tipica: ", d_tipica)

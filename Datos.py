@@ -85,7 +85,8 @@ class Datos(object):
 				self.nominalAtributos.append(True)
 			else:
 				self.nominalAtributos.append(False)
-		
+	
+	# Metodo que extrae datos de la matriz de datos con una lista de indices(posiciones)
 	def extraeDatos(self,idx):
 		return self.datos[idx,:]
 

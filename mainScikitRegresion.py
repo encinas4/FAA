@@ -8,7 +8,7 @@ import EstrategiaParticionado
 import numpy as np
 
 
-data='ConjuntosDatos/wdbc.data'
+data='ConjuntosDatos/example1.data'
 #estrategia= EstrategiaParticionado.ValidacionSimple(0.25,5)
 estrategia= EstrategiaParticionado.ValidacionCruzada(10)
 #estrategia= EstrategiaParticionado.ValidacionBootstrap(10)

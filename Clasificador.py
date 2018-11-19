@@ -101,6 +101,7 @@ class Clasificador(object):
 
 
 ##############################################################################
+# CLASIFICADOR NAIVE BAYES
 
 class ClasificadorNaiveBayes(Clasificador):
   listaMatrices = []
@@ -212,6 +213,7 @@ class ClasificadorNaiveBayes(Clasificador):
     pass
 
 ##############################################################################################
+# CLASIFICADOR VECINOS PROXIMOS
 
 class ClasificadorVecinosProximos(Clasificador):
   listaMatrices=[]#0 media 1 std
@@ -219,6 +221,7 @@ class ClasificadorVecinosProximos(Clasificador):
   datosTrain = None
   k=0
 
+  #constructor de vecinos, k=vecinos, norm=true o false si se quiere normalizar
   def __init__(self, k, norm):
     self.k=k
     self.norm=norm
@@ -229,6 +232,7 @@ class ClasificadorVecinosProximos(Clasificador):
     aux = []
     particionado.creaParticiones(dataset, seed)
 
+    #se intera el numero de particiones que se ha anyadido
     for i in range(particionado.numParticiones):
       train = dataset.extraeDatos(particionado.listaPartic[i].indicesTrain)
       test = dataset.extraeDatos(particionado.listaPartic[i].indicesTest)
@@ -250,6 +254,7 @@ class ClasificadorVecinosProximos(Clasificador):
     self.calcularMedDesv(train)
     pass
 
+  # Se calcula la media y la desv tipica para luego normalizar
   def calcularMedDesv(self, train):
     for i in range(len(train[0]-1)):
       suma = np.sum(train[:,i])
@@ -259,21 +264,27 @@ class ClasificadorVecinosProximos(Clasificador):
       self.listaMatrices.append(aux)
     pass
 
+  # Metodo de normalizacion de datos se le resta al dato la media y se divide entre la desv tipica
   def normalizarDatos(self,datos, atributosDiscretos):
     for i in range(len(datos[0])-1):
       if atributosDiscretos[i] == False:
         datos[:,i]= (datos[:,i] - self.listaMatrices[i][0])/self.listaMatrices[i][1]
     pass  
  
+  # Metodo que clasifica devuelve los N vecinos proximos
   def clasifica(self, test, train, diccionario, atributosDiscretos): 
     distancias=[]
     elem=[]
+    
+    # COmprobacion para que no salte error si el tamaño de la particion es mayor de lo que debe, ya que imposibilita realizar vecinos
     if(self.k>len(train)):
       print("El numero de vecinos no puede ser mayor al de la particion de train")
     
+    # Si se desea normalizar, normaliza
     if norm:
       self.normalizarDatos(test, atributosDiscretos)
 
+    #para cada dato se calcula su distancia con el resto y se introduce en un array de distancias
     for datosTest in test:
       distancias = []
               
@@ -291,6 +302,7 @@ class ClasificadorVecinosProximos(Clasificador):
       sortedD=sorted(distancias)
       clase=[]
 
+      # Se coge las K (num vecinos) mas proximas y se devuelve en un numpy array
       for j in range(self.k):
         clase.append(sortedD[j][1])
       clase = collections.Counter(clase)
@@ -299,47 +311,62 @@ class ClasificadorVecinosProximos(Clasificador):
 
 
 
-    ############################################
+#############################################################################################
+#CLASIFICADOR REGRESION LOGISTICA
 
 class ClasificadorRegresionLogistica(Clasificador): 
   litaW=[]
   listaR=[]
   epocas=None
   constAprend = 1
+
+  #Constructor de regresion logistica, nepocas es el numero de epocas que introduzcamos y cons es la constante de aprendizaje por defecto a 1
   def __init__(self,nepocas, cons=1):
     self.listaA=[]
     self.epocas= nepocas
     self.constAprend=cons
 
-  
-
-  # TODO: implementar
+  # Metodo de entrenamiento
   def entrenamiento(self,datostrain, norm=True):
-   
-    auxW = np.random.uniform(low=-0.5, high=0.5, size=(len(datostrain[0]),))   
+    auxW = []
+
+    #Generamos 3 numeros entre -0.5 y 0.5
+    for i in range(3):
+      numRandom = np.random.uniform(-0.5, 0.5)
+      auxW.append(numRandom)
+
+    # Calculamos la sigmoidal para n epocas para cada dato de train
     for i in range(self.epocas):
       for train in datostrain:
-        t=np.insert(auxW[:-1],0,1)
+        t = np.array([1, train[0], train[1]])
         a = sum(auxW*t)
-        if a > 700:
-          r=0
+
+        if (-a > 700):
+          r=0.0
         else:
-          r=math.exp(a)/(1+ math.exp(a))
-        auxW = auxW -(self.constAprend*(r-train[-1]))*t
+          r = 1 / (1 + math.exp(-a))
+
+        auxW = auxW -self.constAprend*(r-train[-1])*t
     self.listaW=auxW
+    return auxW
 
-
+  # Metodo de clasificacion
   def clasifica(self, test, train, tipoAtributos, diccionario):
     aux =[]
+
+    #calculamos la sigmoidal para todos los daots de test
     for datosTest in test:
-      elem =np.insert(datosTest[:-1],0,1)
+      elem = np.array([1, datosTest[0], datosTest[1]])
       a = sum(elem*self.listaW)
-      if a >700:
-        r=0
+
+      if (-a > 700):
+        r=0.0
       else:
-        r = math.exp(a)/(1+ math.exp(a))
+        r = 1 / (1 + math.exp(-a))      
+
+      #si es >0.5 lo introducimos como Clase 1 si no como clase 0 y se devuelve el array de las clases
       if r > 0.5:
         aux.append(1)
       else:
         aux.append(0)
-    return aux
+    return np.array(aux)
