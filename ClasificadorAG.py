@@ -1,129 +1,109 @@
-from abc import ABCMeta,abstractmethod
+import EstrategiaParticionado
+import Datos
 import numpy as np
-import scipy.stats as norm
-import warnings
-import math as math
-import collections as collections 
-import copy
 
-class Clasificador(object):
-  
-  # Clase abstracta
-  __metaclass__ = ABCMeta
-  listaMatrices = []
-  def _init_(self):
-    self.listaMatrices=[]
-  # Metodos abstractos que se implementan en casa clasificador concreto
-  @abstractmethod
-  # TODO: esta funcion deben ser implementadas en cada clasificador concreto
-  # datosTrain: matriz numpy con los datos de entrenamiento
-  # atributosDiscretos: array bool con la indicatriz de los atributos nominales
-  # diccionario: array de diccionarios de la estructura Datos utilizados para la codificacion
-  # de variables discretas
-  def entrenamiento(self,datosTrain,atributosDiscretos,diccionario):
-    pass
-  
-  
-  @abstractmethod
-  # TODO: esta funcion deben ser implementadas en cada clasificador concreto
-  # devuelve un numpy array con las predicciones
-  def clasifica(self,datosTest,atributosDiscretos,diccionario):
-    pass
-  
-  
-  # Obtiene el numero de aciertos y errores para calcular la tasa de fallo
-  # TODO: implementar
-  def error(self,datos,pred):
-    # Aqui se compara la prediccion (pred) con las clases reales y se calcula el error  
-    return np.count_nonzero(datos[:, -1] != pred)/len(pred)
-    
-    
-  # Realiza una clasificacion utilizando una estrategia de particionado determinada
-  # TODO: implementar esta funcion
-  def validacion(self,particionado,dataset,clasificador,laplace=0,seed=None):
-    errores = []
-    # Creamos las particiones siguiendo la estrategia llamando a particionado.creaParticiones
-    # - Para validacion cruzada: en el bucle hasta nv entrenamos el clasificador con la particion de train i
-    # y obtenemos el error en la particion de test i
-    # - Para validacion simple (hold-out): entrenamos el clasificador con la particion de train
-    # y obtenemos el error en la particion test
-    #Creamos las particiones
-    particionado.creaParticiones(dataset, seed)
-    # Recorremos las particiones
-    for particion in particionado.listaPartic:
-      #Extraemos los datos de las particiones, tanto de test como de train
-      train = dataset.extraeDatos(particion.indicesTrain)
-      test = dataset.extraeDatos(particion.indicesTest)
+class ClasificadorAG():
+  poblacion = 0;
+  nepocas =0;
 
-      # Entrenamos con los datos de train y evaluamos con los datos de test
-      entrenamiento = clasificador.entrenamiento(train, dataset.tipoAtributos, dataset.diccionarios,laplace)
-      evaluacion = clasificador.clasifica(test,dataset.tipoAtributos, dataset.diccionarios)
-      errores.append(self.error(test, evaluacion))
-      clasificador.calcularMatrizConfusion(test, evaluacion)
-
-    return errores
+  def __init__(self, n, p):
+      self.nepocas = n
+      self.poblacion=p
 
 
-  def calcularMedDesv(self, train):
-    for i in range(len(train[0]-1)):
-      sum = np.sum(train[:,i])
-      aux=[]
-      aux.append(sum/len(train[:,i]))
-      aux.append(np.std(train[:,i]))
-      self.listaMatrices.append(aux)
-    pass
-
-
-  def normalizarDatos(self,datos, tipoAtributos):
-    for i in range(len(datos[0])-1):
-      if tipoAtributos[i] == "Continuo":
-        datos[:,i]= (datos[:,i] - self.listaMatrices[i][0])/self.listaMatrices[i][1]
-    pass
-
-  def validacion(self,particionado,dataset,clasificador, laplace=0 , seed=None, constAprend = 1, nepocas = 1):
-    aux = []
-    particionado.creaParticiones(dataset, seed)
-
-    for i in range(particionado.numParticiones):
-      train = dataset.extraeDatos(particionado.listaPartic[i].indicesTrain)
-      test = dataset.extraeDatos(particionado.listaPartic[i].indicesTest)
-      if norm:
-        clasificador.calcularMedDesv(test)
-        clasificador.normalizarDatos(test, dataset.tipoAtributos)
-
-      clasificador.entrenamiento(train)
-      if norm:
-        clasificador.normalizarDatos(train, dataset.tipoAtributos)
-
-      clases = clasificador.clasifica(test,train, dataset.nominalAtributos,dataset.diccionarios)
-      aux.append(clasificador.error(test, clases))
-    return aux
+      pass
 
 
 
 
-class ClasificadorAlgoritmoGenetico(Clasificador):
-  listaMatrices=[]#0 media 1 std
-  
-  datosTrain = None
-  poblacion = 0
-  epocas = 0
-  fitnes = 0.0
+  def procesamiento(self, dataset, clasificador):
+    l = len(dataset.nombreAtributos)-1
+    poblacion = np.random.randint(2, size=(self.poblacion, l))
 
-  #constructor de vecinos, k=vecinos, norm=true o false si se quiere normalizar
-  def __init__(self, poblacion, epocas, fitnes):
-    self.epocas = epocas
-    self.poblacion = poblacion
-    self.fitnes = fitnes
 
-  def void entrenamiento(self, dataset):
-    datos = np.empty([len(datos[0]),len(datos)], dtype=int)
-    datos[:,-1] = dataset[:,-1]
-    for i in range(len(datos[0])-1):
-      int K = 1 + 3.322*np.log10(len(dataset))
-      int a = (np.amax(datos[:,i]) - np.amin(datos[:,i]))*K
-      for j in range(len(datos)):
-        datos[j,i] = (int(dataset[j,i]/a)+1)
-    dataset = datos
-    pass
+     if(fitness != [] and (max(fitness)>=0.9)):
+            break
+        
+        fitness = []
+        roulette = []
+        cruzados = []
+        siguienteGen = []
+        ran = 1
+        
+        for elemento in poblacion:
+          
+            dataset_elem = copy.copy(dataset)
+            indices = list(np.flatnonzero(elemento))
 
+            dataset_elem.datos = dataset.extraeDatosRelevantes(indices)
+            dataset_elem.diccionarios = dataset.diccionarioRelevante(indices)
+            dataset_elem.atribDiscretos = dataset.atribDiscretosRelevantes(indices)
+            dataset_elem.nombreAtributos = dataset.nombreAtributosRelevantes(indices)
+            print("Los atributos seleccionados son: ",dataset_elem.nombreAtributos[:-1])
+
+            particionado = EstrategiaParticionado.ValidacionSimple(porcentaje=0.7)
+            fitness.extend(clasificador.validacion(particionado, dataset_elem, clasificador))
+            print("El fitness es: ", 1-fitness[-1])
+        fitness = list(1-np.array(fitness))
+
+        for i in range(len(fitness)):
+            norm = fitness[i]/sum(np.array(fitness))
+            roulette.append((poblacion[i], ran-norm, norm))
+            ran -= norm
+        
+        for i in range(int(tamanio_poblacion*0.6)):
+            random = np.random.rand()
+            for i in range(len(roulette)):
+                if ((random > roulette[i][1]) and (random < roulette[i-1][1])):
+                    cruzados.append(roulette[i][0])
+                    
+        for IndiceACruzar in range(1, len(cruzados), 2):
+            hijoUno = []
+            hijoDos = []
+            for subIndice in range(len(cruzados[IndiceACruzar])):
+                if (np.random.randint(2) == 0):
+                    hijoUno.append(cruzados[IndiceACruzar][subIndice])
+                    hijoDos.append(cruzados[IndiceACruzar - 1][subIndice])
+                else:
+                    hijoUno.append(cruzados[IndiceACruzar - 1][subIndice])
+                    hijoDos.append(cruzados[IndiceACruzar][subIndice])
+                    
+            siguienteGen.append(hijoUno)
+            siguienteGen.append(hijoDos)
+        
+        for i in list(sorted(roulette, key=lambda max:max[2], reverse=True)[0:int(tamanio_poblacion*0.05)]):
+            siguienteGen.append(list(i[0]))
+        
+        datosAMutar = []
+        numDatosMutacion = int(0.35*len(poblacion))
+        
+        for i in range(numDatosMutacion):
+            random = np.random.randint(len(poblacion))
+            datosAMutar.append(poblacion[random])
+        
+        for valor in datosAMutar:
+            for bit in range(len(valor)):
+                random = np.random.randint(1000)
+                if random < 1:
+                    if valor[bit] == 0: 
+                        valor[bit] = 1
+                    else: 
+                        valor[bit] = 0
+                        
+                
+                    
+        siguienteGen += datosAMutar
+        poblacion=np.array(siguienteGen)
+        
+        print("\nEl maximo de fitness es: ",max(fitness))
+        tuple = list(sorted(roulette, key=lambda max:max[2], reverse=True))[0]
+        print("El elemento con el máximo fitness es: ", tuple[0])
+        
+        print("Ha seleccionado los siguientes atributos: ")
+        
+        valoresSalida = []
+        
+        for i in range(len(tuple[0])):
+            if (tuple[0][i] == 1):
+                valoresSalida.append(dataset.nombreAtributos[i])
+        print(valoresSalida)
