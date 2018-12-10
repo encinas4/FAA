@@ -94,7 +94,6 @@ class ValidacionCruzada(EstrategiaParticionado):
       for j in range(self.numParticiones):
         if j != i:
           self.listaPartic[i].indicesTrain += auxPartic[j].tolist()
-      
     pass
     
 

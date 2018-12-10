@@ -89,18 +89,18 @@ class Datos(object):
 	# Metodo que extrae datos de la matriz de datos con una lista de indices(posiciones)
 	def extraeDatos(self,idx):
 		return self.datos[idx,:]
-
-    def extraeDatosRelevantes(self, idx):
-    	lst = idx + [len(self.datos[1]) -1]
-    	return self.datos[:,lst]
+	def extraeDatosRelevantes(self, idx):
+		lst = idx + [len(self.datos[1]) -1]
+		return self.datos[:,lst]
 
 	def diccionarioRelevante(self, idx):
-    	lst = idx + [len(self.diccionarios) -1]
-    	return [self.diccionarios[index] for index in lst]
+		lst = idx + [len(self.diccionarios) -1]
+		return [self.diccionarios[index] for index in lst]
 
 	def atribDiscretosRelevantes(self, idx):
-    	lst = idx + [len(self.nominalAtributos) -1]
-    	return [self.nominalAtributos[index] for index in lst]
+		lst = idx + [len(self.nominalAtributos) -1]
+		return [self.nominalAtributos[index] for index in lst]
+	
 	def nombreAtributosRelevantes(self, idx):
-    	lst = idx + [len(self.nombreAtributos) -1]
-    	return [self.nombreAtributos[index] for index in lst]
+		lst = idx + [len(self.nombreAtributos) -1]
+		return [self.nombreAtributos[index] for index in lst]

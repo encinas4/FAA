@@ -58,8 +58,11 @@ class Clasificador(object):
       # Entrenamos con los datos de train y evaluamos con los datos de test
       entrenamiento = clasificador.entrenamiento(train, dataset.tipoAtributos, dataset.diccionarios,laplace)
       evaluacion = clasificador.clasifica(test,dataset.tipoAtributos, dataset.diccionarios)
+      print entrenamiento
+      print
+      print evaluacion
       errores.append(self.error(test, evaluacion))
-      clasificador.calcularMatrizConfusion(test, evaluacion)
+      #clasificador.calcularMatrizConfusion(test, evaluacion)
 
     return errores
 
@@ -276,7 +279,6 @@ class ClasificadorVecinosProximos(Clasificador):
     distancias=[]
     elem=[]
     
-    # COmprobacion para que no salte error si el tamaño de la particion es mayor de lo que debe, ya que imposibilita realizar vecinos
     if(self.k>len(train)):
       print("El numero de vecinos no puede ser mayor al de la particion de train")
     
@@ -361,7 +363,6 @@ class ClasificadorRegresionLogistica(Clasificador):
     for datosTest in test:
       elem = np.array([1, datosTest[0], datosTest[1]])
       a = sum(elem*self.listaW)
-
       if (-a > 700):
         r=0.0
       else:
@@ -372,4 +373,5 @@ class ClasificadorRegresionLogistica(Clasificador):
         aux.append(1)
       else:
         aux.append(0)
+
     return np.array(aux)
