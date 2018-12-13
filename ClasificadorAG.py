@@ -39,21 +39,14 @@ class ClasificadorAG():
     #l=Parallel(n_jobs=-1)(delayed(unwrap_self_fit)(p) for p in  izip([self] * tam, binarios, [dataset] * tam,[clasificador] * tam, [estrategia]*tam))
     dataSetAux = Datos()
     e=[]
-    c=[]
-
     for c in binario:
       colNum = np.flatnonzero(binarios)
       dataSetAux.datos = dataset.extraeDatosRelevantes(colNum)
       dataSetAux.diccionarios = dataset.diccionarioRelevante(colNum)
       dataSetAux.nominalAtributos = dataset.atribDiscretosRelevantes(colNum)
-      e.extend(clasificador.validacion(estrategia, dataSetAux, clasificador))
-      c.extend(col)
-      #col y error que habria que ordenar?
-    return np.flatnonzero(poblacion[0][0]), poblacion[0][1]
-      
-
-
-    return sorted(l,key=lambda t: t[1], reverse=True)
+      e.append((1-clasificador.validacion(estrategia, dataSetAux, clasificador)), col)
+    np.flatnonzero(e)
+    return sorted(e,key=lambda t: t[0], reverse=True)
 
 
     def cruceUniformePob(self, pob):
