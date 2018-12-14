@@ -9,4 +9,5 @@ data = 'ConjuntosDatos/wdbc.data'
 dataset=Datos(data)
 clasificador=Clasificador.ClasificadorRegresionLogistica(10)
 cla = ClasificadorAG.ClasificadorAG(5, 40)
-cla.procesamiento(dataset, clasificador)
+a =cla.procesamiento(dataset, clasificador)
+print(a)

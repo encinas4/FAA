@@ -1,7 +1,8 @@
 import EstrategiaParticionado
-import Datos
-import numpy as np
+from Datos import Datos
 import copy
+import numpy as np
+
 
 class ClasificadorAG():
   poblacion = 0;
@@ -21,9 +22,9 @@ class ClasificadorAG():
     map(lambda x: np.random.shuffle(x),binariosAle)
 
     poblacion = self.fitnessPob(binariosAle,dataset,clasificador)
-    for i in range(p):
-      if max(poblacion[0][1]>0.95):
-        break
+    for i in range(self.p):
+      #if max(poblacion[0][1]>0.95):
+       # break
 
       pobAux = self.seleccionProgenitores(poblacion)
       pobAux = self.cruceUniformePob(pobAux)
@@ -31,35 +32,45 @@ class ClasificadorAG():
       pobAux = self.fitnessPob(pobAux,dataset,clasificador)
       poblacion = self.seleccionSup(pobAux,poblacion)
 
+    return poblacion[0][0], np.flatnonzero(poblacion[0][1])
+
+  def seleccionProgenitores(self, poblacion):
+   #fitness
+   break
+
+
 
 
   def fitnessPob(self,binarios,dataset,clasificador):
-    estrategia = EstrategiaParticionado.ValidacionSimple(porcentajeTrain=0.7)
+    estrategia = EstrategiaParticionado.ValidacionSimple(0.7,1)
     tam = len(binarios)
-    #l=Parallel(n_jobs=-1)(delayed(unwrap_self_fit)(p) for p in  izip([self] * tam, binarios, [dataset] * tam,[clasificador] * tam, [estrategia]*tam))
-    dataSetAux = Datos()
+    dataSetAux = Datos('ConjuntosDatos/wdbc.data')
+
     e=[]
-    for c in binario:
-      colNum = np.flatnonzero(binarios)
+    for c in binarios:
+      colNum = np.flatnonzero(c)
+
       dataSetAux.datos = dataset.extraeDatosRelevantes(colNum)
       dataSetAux.diccionarios = dataset.diccionarioRelevante(colNum)
       dataSetAux.nominalAtributos = dataset.atribDiscretosRelevantes(colNum)
-      e.append((1-clasificador.validacion(estrategia, dataSetAux, clasificador)), col)
-    np.flatnonzero(e)
+      f=(1-clasificador.validacion(estrategia, dataSetAux, clasificador)[0])
+      print(f)
+      e.append([f, c])
+    #np.flatnonzero(e)
     return sorted(e,key=lambda t: t[0], reverse=True)
 
 
     def cruceUniformePob(self, pob):
-      for pp in pob:
-        for i in xrange(len(p)):
-            if random.random() < 0.6:
-                pp[0:2][i], pp[1:2][i] = pp[1:2][i], pp[0:2][i]
+      for i in xrange(len(pob)):
+        if random.random() < 0.6:
+          pob[0:2][i], pob[1:2][i] = pob[1:2][i], pob[0:2][i]
       return pob
+
     def mutacionPob(self, pob):
-      for p in pob:
-        for i in range(len(p)):
-            if random.random() < 0.001:
-                p[i] = 0 if p[i]==1 else 1
+      for i in range(len(pob)):
+          if random.random() < 0.001:
+              p[i] = 0 if p[i]==1 else 1
+      return pob
 
     def seleccionSup(self,pobAux,poblacion):
       aux = []
