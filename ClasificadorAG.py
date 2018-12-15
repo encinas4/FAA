@@ -2,6 +2,9 @@ import EstrategiaParticionado
 from Datos import Datos
 import copy
 import numpy as np
+import random
+import math
+
 
 
 class ClasificadorAG():
@@ -12,31 +15,80 @@ class ClasificadorAG():
     self.nepocas = n
     self.p=p
     pass
+  def crearReglas(self,tam, k, b):
+    l = []
+    if(not b):
+      for i in range(tam):
+        auxL=[]
+        auxL=np.random.randint(k, size=tam)
+        if random.random()<  0.5:
+          auxL= np.append(auxL,1)
+        else:
+          auxL= np.append(auxL,0)
+        l.append(auxL)
+    print(l)
+    return l
 
-  def procesamiento(self, dataset, clasificador):
+  def fitnessPob1(self, auxP,dataset,clasificador, b,k):
+    l = []
+    for p in auxP:
+      f = clasificador.evaluar(p, dataset, b,k)
+      l.append([f, p])
+    return l
+
+
+
+
+
+  def procesamiento(self, dataset, clasificador, binary):
+    poblacion=[]
+
+    auxP = []
     tam = len(dataset.nombreAtributos)
-    intAle = np.random.randint(low=1,high=tam, size=(self.p,1),dtype=np.uint64)
-    binarios = np.array([np.hstack((np.ones(n, dtype=np.uint64), np.zeros(tam - n - 1, dtype=np.uint64))) for n in intAle])
-    binariosAle = np.array(binarios)
+    n = len(dataset.datos)
+    k = int(1+ 3.322*np.log10(n))
+    
+    for i in range(n):
+      individuo=[]
+      r = random.randint(1, 5)
+      for j in range r:
+        individuo.append(self.crearReglas(tam-1,k, binary))
+      auxP.append(individuo)
 
-    map(lambda x: np.random.shuffle(x),binariosAle)
+    poblacion = self.fitnessPob1(auxP,dataset,clasificador, binary, k)
 
-    poblacion = self.fitnessPob(binariosAle,dataset,clasificador)
+
+
+    """
+    
+
+    #print("PP:",  poblacion)
     for i in range(self.p):
-      #if max(poblacion[0][1]>0.95):
-       # break
-
       pobAux = self.seleccionProgenitores(poblacion)
+      #print("\nProg: ", pobAux)
+     
       pobAux = self.cruceUniformePob(pobAux)
+      #print("\nCruce : ", pobAux)
+    
       pobAux = self.mutacionPob(pobAux)
-      pobAux = self.fitnessPob(pobAux,dataset,clasificador)
+     # print("\nMut : ", pobAux)
+      #print()
+      
+      pobAux = self.fitnessPob(self.binariosFnc(pobAux),dataset,clasificador)
+     # print("\nFit2 : ", pobAux)
       poblacion = self.seleccionSup(pobAux,poblacion)
+      #print("\nProblacion final: ", poblacion)
 
-    return poblacion[0][0], np.flatnonzero(poblacion[0][1])
+    return poblacion[0][0], poblacion[0][1]
+    """
+    return 1
+    
 
   def seleccionProgenitores(self, poblacion):
-   #fitness
-   break
+    auxp = sorted(poblacion,key=lambda t: t[0], reverse=True)
+    t = int(len(poblacion)/2)
+    return auxp[0:t]
+   
 
 
 
@@ -54,27 +106,36 @@ class ClasificadorAG():
       dataSetAux.diccionarios = dataset.diccionarioRelevante(colNum)
       dataSetAux.nominalAtributos = dataset.atribDiscretosRelevantes(colNum)
       f=(1-clasificador.validacion(estrategia, dataSetAux, clasificador)[0])
-      print(f)
+      #print(f)
       e.append([f, c])
     #np.flatnonzero(e)
     return sorted(e,key=lambda t: t[0], reverse=True)
 
 
-    def cruceUniformePob(self, pob):
-      for i in xrange(len(pob)):
-        if random.random() < 0.6:
-          pob[0:2][i], pob[1:2][i] = pob[1:2][i], pob[0:2][i]
-      return pob
+  def cruceUniformePob(self, pob):
+    for l in range(int(len(pob)/2)):
+      for i in range(len(pob[l][1])):
+        if random.random()<  0.2:
+          print("YES\n")
+          pob[l][1][i], pob[l+1][1][i] = pob[l][1][i], pob[l+1][1][i]
+    return pob
 
-    def mutacionPob(self, pob):
-      for i in range(len(pob)):
-          if random.random() < 0.001:
-              p[i] = 0 if p[i]==1 else 1
-      return pob
+  def mutacionPob(self, pob):
+    for l in range(int(len(pob))):
+      for i in range(len(pob[l][1])):
+        if random.random() < 0.001:
+          pob[l][1][i] = 0 if pob[l][1][i]==1 else 1
+    return pob
 
-    def seleccionSup(self,pobAux,poblacion):
-      aux = []
-      tamElite = int(math.ceil(0.05 * self.p))
-      aux.extend(poblacion[0:tamElite])
-      aux.extend(pobAux[0:(self.tamPob-tamElite)])
-      return sorted(aux,key=lambda t: t[1], reverse=True)
+  def binariosFnc(self, pob):
+    ll=[]
+    for l in range(len(pob)):
+      ll.append(pob[l][1])
+    return ll
+
+  def seleccionSup(self,pobAux,poblacion):
+    aux = []
+    tamElite = int(math.ceil(0.05 * self.p))
+    aux.extend(poblacion[0:tamElite])
+    aux.extend(pobAux[0:(self.p-tamElite)])
+    return sorted(aux,key=lambda t: t[0], reverse=True)

@@ -7,7 +7,6 @@ import ClasificadorAG
 
 data = 'ConjuntosDatos/wdbc.data'
 dataset=Datos(data)
-clasificador=Clasificador.ClasificadorRegresionLogistica(10)
-cla = ClasificadorAG.ClasificadorAG(5, 40)
-a =cla.procesamiento(dataset, clasificador)
-print(a)
+clasificador=Clasificador.ClasificadorGenetico(10)
+cla = ClasificadorAG.ClasificadorAG(1, 10)
+a =cla.procesamiento(dataset, clasificador, False)
