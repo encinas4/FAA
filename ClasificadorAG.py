@@ -75,32 +75,40 @@ class ClasificadorAG():
         individuo.append(self.crearRegla(tam-1,k, binary))
       auxP.append(individuo)
       # En este punto ya tenemos la poblacion inicial creada
-
+    #print("AuxP", auxP)
     poblacion = self.fitnessPob1(auxP,dataset,clasificador, binary, k)
 
     for i in range(self.nepocas):
       #Realizamos la seleccion de progenitores
       pobAux = self.seleccionProgenitores(poblacion)
-      print("\nProg: ", pobAux)
+      #print("\nProg: ", pobAux)
 
       #Realixamos el cruce uniforme
       pobAux = self.cruceUniformePob(pobAux)
       #print("\nCruce : ", pobAux)
     
       #realizamos la mutacion
-      pobAux = self.mutacionPob(pobAux,binary)
-      print("\nMut : ", pobAux)
+      pobAux = self.mutacionPob(pobAux,binary,k)
+      #print("\nMut : ", pobAux)
       #print()
       
       #realizamos el fitness
-      #pobAux = self.fitnessPob(self.binariosFnc(pobAux),dataset,clasificador)
+      #print(pobAux, poblacion)
+      pobAux = self.fitnessPob1(pobAux,dataset,clasificador,binary,k)
       #print("\nFit2 : ", pobAux)
-
+     
       #Cogemos los mejores
-      #poblacion = self.seleccionSup(pobAux,poblacion)
-      #print("\nProblacion final: ", poblacion)
+      poblacion = self.seleccionSup(pobAux,poblacion)
+     # print("\nProblacion final: ", poblacion)
 
-    return poblacion[0][0], poblacion[0][1]
+    estrategia = EstrategiaParticionado.ValidacionCruzada(1)
+    estrategia.creaParticiones(dataset, None)
+    test = dataset.extraeDatos(estrategia.listaPartic[0].indicesTest)
+    pred = clasificador.clasificar(poblacion[0][1], dataset, test, binary,k)
+    return clasificador.error(pred, test)
+
+
+    
     
 
   def seleccionProgenitores(self, poblacion):
@@ -108,29 +116,9 @@ class ClasificadorAG():
     t = int(len(poblacion)/2)
     return auxp[0:t]
 
-  def fitnessPob(self,binarios,dataset,clasificador):
-    estrategia = EstrategiaParticionado.ValidacionCruzada(1)
-    tam = len(binarios)
-    dataSetAux = Datos('ConjuntosDatos/wdbc.data')
-    estrategia.creaParticiones(dataset, None)
-    train = dataset.extraeDatos(estrategia.listaPartic[0].indicesTest)
-
-    e=[]
-    for c in binarios:
-      colNum = np.flatnonzero(c)
-
-      dataSetAux.datos = dataset.extraeDatosRelevantes(colNum)
-      dataSetAux.diccionarios = dataset.diccionarioRelevante(colNum)
-      dataSetAux.nominalAtributos = dataset.atribDiscretosRelevantes(colNum)
-      f=(1-clasificador.validacion(estrategia, dataSetAux, train, clasificador)[0])
-      #print(f)
-      e.append([f, c])
-    #np.flatnonzero(e)
-    return sorted(e,key=lambda t: t[0], reverse=True)
-
+  
 
   def cruceUniformePob(self, pob):
-    print(int(len(pob)/2))
     p = []
     for l in range(int(len(pob)/2)):
       p.append(pob[l*2][1])
@@ -141,29 +129,27 @@ class ClasificadorAG():
       hijo1 = []
       hijo2 = []
       # cruce en cualquier punto de los dos individuos
-      print("pto1", ptoCruce1, "pto2", ptoCruce2, "individuo1", l*2, "individuo2", l*2+1)
-      hijo1 = pob[l*2][1][:ptoCruce1]
-      hijo1.append(pob[(l*2+1)][1][ptoCruce2:])
-      hijo2 = pob[(l*2+1)][1][:ptoCruce2]
-      hijo2.append(pob[l*2][1][ptoCruce1:])
+      hijo1[:ptoCruce1] = pob[l*2][1][:ptoCruce1]
+      hijo1[ptoCruce1:] =pob[(l*2+1)][1][ptoCruce2:]
+      hijo2[:ptoCruce2] = pob[(l*2+1)][1][:ptoCruce2]
+      hijo2[ptoCruce2:] = pob[l*2][1][ptoCruce1:]
 
       p.append(hijo1)
       p.append(hijo2)
-
     return p
 
-  def mutacionPob(self, pob, b):
-    for l in range(int(len(pob))):
-      for i in range(len(pob[l])):#cambiar
-        if(not b):
-          if random.random() < 0.001:
-            print("mutacion")
-            pob[l][i] = random.randint(0,k)
-        else:
-          for j in len(pob[l][i]):
+  def mutacionPob(self, pob, b,k):
+    for p in range(len(pob)):  
+      for l in range(int(len(pob[p]))):
+        for i in range(len(pob[p][l])):#cambiar
+          if(not b):
             if random.random() < 0.001:
-              pob[l][i][j] = 0 if pob[l][i][j]==1 else 1
-    return pob
+              pob[p][l][i] = random.randint(0,k)
+          else:
+            for j in len(pob[p][l][i]):
+              if random.random() < 0.001:
+                pob[p][l][i][j] = 0 if pob[p][l][i][j]==1 else 1
+      return pob
 
   def binariosFnc(self, pob):
     ll=[]
@@ -173,7 +159,7 @@ class ClasificadorAG():
 
   def seleccionSup(self,pobAux,poblacion):
     aux = []
-    tamElite = int(math.ceil(0.05 * self.p))
+    tamElite = int(math.ceil(0.05 * self.poblacion))
     aux.extend(poblacion[0:tamElite])
-    aux.extend(pobAux[0:(self.p-tamElite)])
+    aux.extend(pobAux[0:(self.poblacion-tamElite)])
     return sorted(aux,key=lambda t: t[0], reverse=True)

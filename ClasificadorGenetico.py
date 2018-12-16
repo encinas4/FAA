@@ -59,20 +59,31 @@ class ClasificadorGenetico():
           transDato=[]
           for i in range(len(dato)-1):
             transDato.append(self.idIntervalor(i, dato[i]))
-            if (self.idIntervalor(i, dato[i])== None):
-              print(dato[i], i)
-          if (self.compararLista(regla[0:-2], transDato)):
+          if (self.compararLista(regla[0:-1], transDato)):
             clase.append(regla[-1])  
+        #print(clase)
         if clase !=[] and np.bincount(clase).argmax() == dato[-1]:
           aciertos+=1
          
         total+=1
+    else:
+      for dato in train:
+        clase=[]
+        for regla in ind:  
+          transDato=[]
+          for i in range(len(dato)-1):
+              if (self.compararLista(regla[0:-1], transDato)):
+                break
+            clase.append(regla[-1])  
+        #print(clase)
+        if clase !=[] and np.bincount(clase).argmax() == dato[-1]:
+          aciertos+=1
+         
+        total+=1
+
     return 1- aciertos/total
           
            
-
-
-    return 0
     
   def compararLista(self, a,b):
     if len(a) == len(b):
@@ -86,3 +97,25 @@ class ClasificadorGenetico():
       if(intervalo.min <= valor and intervalo.max>= valor):
         return intervalo.id
     return intervalo.id
+
+  def clasificar(self, individuo, dataset, train, b,k):
+    self.crearTablaIntervalos(dataset, train, k)
+    if(not b):
+      pred=[]
+      for dato in train:
+        clase=[]
+        for regla in individuo:  
+          transDato=[]
+          for i in range(len(dato)-1):
+            transDato.append(self.idIntervalor(i, dato[i]))
+          if (self.compararLista(regla[0:-1], transDato)):
+            clase.append(regla[-1])
+        if clase== []:  
+          for r in individuo:
+            clase.append(r[-1])
+        
+        pred.append(np.bincount(clase).argmax())
+      return pred
+
+  def error(self, pred, datos):
+    return np.count_nonzero(datos[:, -1] != pred)/len(pred)
