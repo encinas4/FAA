@@ -35,16 +35,19 @@ class ClasificadorAG():
         auxL=[]
         for i in range(tam):
             r=[]
+            print(k)
             for j in range(k):
                 if random.random()<0.5:		# de forma aleatoria generamos 0 o 1 y lo introducimos a la regla
                     r= np.append(r,1)
                 else:
                     r= np.append(r,0)
             auxL.append(r)
+            print(r)
         if random.random()<0.5:     # Introducimos la clase
             auxL.append(1)
         else:
             auxL.append(0)
+
 
     return auxL
 
@@ -100,6 +103,7 @@ class ClasificadorAG():
       #Cogemos los mejores
       poblacion = self.seleccionSup(pobAux,poblacion)
      # print("\nProblacion final: ", poblacion)
+     
 
     estrategia = EstrategiaParticionado.ValidacionCruzada(1)
     estrategia.creaParticiones(dataset, None)
@@ -139,14 +143,17 @@ class ClasificadorAG():
     return p
 
   def mutacionPob(self, pob, b,k):
-    for p in range(len(pob)):  
-      for l in range(int(len(pob[p]))):
-        for i in range(len(pob[p][l])):#cambiar
-          if(not b):
+    if(not b):
+      for p in range(len(pob)):  
+        for l in range(int(len(pob[p]))):
+          for i in range(len(pob[p][l])):#cambiar
             if random.random() < 0.001:
               pob[p][l][i] = random.randint(0,k)
-          else:
-            for j in len(pob[p][l][i]):
+    else:
+      for p in range(len(pob)):  
+        for l in range(int(len(pob[p]))):
+          for i in range(len(pob[p][l])-1):#cambiar
+            for j in range(len(pob[p][l][i])):
               if random.random() < 0.001:
                 pob[p][l][i][j] = 0 if pob[p][l][i][j]==1 else 1
       return pob

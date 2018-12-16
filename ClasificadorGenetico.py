@@ -66,9 +66,36 @@ class ClasificadorGenetico():
           aciertos+=1
          
         total+=1
+    else:
+      for dato in train:
+        clase=[]
+        for regla in ind:  
+          transDato=[]
+          c=0
+          for i in range(len(dato)-1):
+            if not self.comprobarReglasBin(regla[i], dato[i], i):
+              break
+            else:
+              c+=1
+          if c == len(regla):
+            clase.append(regla[-1])
+        if clase !=[] and np.bincount(clase).argmax() == dato[-1]:
+          aciertos+=1
+        total+=1
+
     return 1- aciertos/total
           
-           
+  def comprobarReglasBin(self, lista, valor, i):
+    for j in range(len(lista)):
+      if lista[j] == 1:
+        rango = self.listaMatrices[i][j+1]
+       # print(rango.max, rango.min, valor)
+        if rango.min <= valor and rango.max >=valor:
+          return True
+
+    return False
+
+
     
   def compararLista(self, a,b):
     if len(a) == len(b):
@@ -101,6 +128,27 @@ class ClasificadorGenetico():
         
         pred.append(np.bincount(clase).argmax())
       return pred
+    else:
+      pred=[]
+      for dato in train:
+        clase=[]
+        for regla in individuo:  
+          transDato=[]
+          c=0
+          for i in range(len(dato)-1):
+            if not self.comprobarReglasBin(regla[i], dato[i], i):
+              break
+            else:
+              c+=1
+          if c == len(regla):
+            clase.append(regla[-1])
+        if clase== []:  
+          for r in individuo:
+            clase.append(r[-1])
+        
+        pred.append(np.bincount(clase).argmax())
+      return pred
+
 
   def error(self, pred, datos):
     return np.count_nonzero(datos[:, -1] != pred)/len(pred)
