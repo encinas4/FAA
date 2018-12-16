@@ -6,48 +6,83 @@ import math as math
 import collections as collections 
 import copy
 
-class ClasificadorGenetico(object):
+class Intervalo():
+  id = 0
+  max = 0
+  min = 0
 
-  # Clase abstracta
-  __metaclass__ = ABCMeta
+  def __init__(self, id, min, max):
+    self.id = id
+    self.min = min
+    self.max = max
+
+class ClasificadorGenetico():
   listaMatrices = []
-  def _init_(self):
+
+  def __init__(self):
     return
 
   def error(self,datos,pred):
     # Aqui se compara la prediccion (pred) con las clases reales y se calcula el error  
     return np.count_nonzero(datos[:, -1] != pred)/len(pred)
 
-  def validacion(self,ind, dataset, b, k):
-    for dato in dataset.datos:
-      clase=[]
-      for regla in ind:  
-        for i in range(len(dato)-1):
-          if(not b):#no binario
-            """if(regla[i] != int(dato[i]/k)):
-              break
-            if(regla[i] == int(dato[i]/k) and regla[-1] == dato[-1] and i == len(dato)-2): 
-              acierto+=1
-            if (i == len(dato)-2):
-              error+=1"""
-            aux =[]
-            aux.append(dato[0:-2]/k+1)#para cada dato[i] lo dividimos por k y le sumamos 1
-            if(cmp (regla[0:-2], aux)==1):
-              clase.append(regla[-1])
-          else:
-            a = 1 
-            #cosas
-        if(clase != []):
-          #cnt = Counter(list_of_integers)
-          #if(cnt.most_common(1) == dato[-1])
-          if (a == 1):
-            acierto+=1
+  #Metodo que crea la tabla de intervalos a partir de un dataset y un k intervalos dado 
+  def crearTablaIntervalos(self, dataset, train, k):
+    column = []
+    self.listaMatrices = []
+    for a in range(len(dataset.nombreAtributos)-1): # recorremos los a atributos menos la clase
+      column = train[:,a]   # extraemos toda la columna del atributo con el que trabajamos
+      auxA = []             # lista auxiliar de los intervalos por atributo
+      minim = min(column)
+      maxim = max(column)
+      A = (maxim -minim)/k
+      
+      intervalo = Intervalo(0, 0, 0)    # En el caso de intervalos 0
+      auxA.append(intervalo)
+      for i in range(k):    # #bucle que crea todos los intervalos de un atributo
+        intervalo = Intervalo(i+1, minim, minim+A)
+        auxA.append(intervalo)
+        minim += A
+
+      self.listaMatrices.append(auxA)    # introducimos los intervalos de un atributo en la lista de matrices
+
+
+  def validacion(self,ind, dataset, train, b, k):
+    # Creamos la lista de intervalos por atributo
+    self.crearTablaIntervalos(dataset, train, k)
+    total=0
+    aciertos=0
+    if(not b):
+      for dato in train:
+        clase=[]
+        for regla in ind:  
+          transDato=[]
+          for i in range(len(dato)-1):
+            transDato.append(self.idIntervalor(i, dato[i]))
+            if (self.idIntervalor(i, dato[i])== None):
+              print(dato[i], i)
+          if (self.compararLista(regla[0:-2], transDato)):
+            clase.append(regla[-1])  
+        if clase !=[] and np.bincount(clase).argmax() == dato[-1]:
+          aciertos+=1
+         
         total+=1
-    return acierto/total
+    return 1- aciertos/total
+          
+           
 
 
+    return 0
+    
+  def compararLista(self, a,b):
+    if len(a) == len(b):
+      for i in range(len(a)):
+        if a[i] != b[i]:
+          return False
+    return True
 
-
-
-  
-
+  def idIntervalor(self, id, valor):
+    for intervalo in self.listaMatrices[id]:
+      if(intervalo.min <= valor and intervalo.max>= valor):
+        return intervalo.id
+    return intervalo.id

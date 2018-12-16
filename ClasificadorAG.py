@@ -6,7 +6,6 @@ import random
 import math
 
 
-
 class ClasificadorAG():
   poblacion = 0;
   nepocas =0;
@@ -20,45 +19,44 @@ class ClasificadorAG():
   # y k no sera relevante. Si la representacion es entera b valdra false y se usara k
   # para la generacion de la regla 
   def crearRegla(self,tam, k, b):
-    #l = []		creo que la l no hace falta porque ya hacemos un bucle en procesamiento de 1 a 5 reglas
-
-    """ No queria borrar nada de lo que has hecho
-    if(not b):	# si la representacion es entera
-      for i in range(tam):
-        auxL=[]
-        auxL=np.random.randint(k+1, size=tam) #duda
-        if random.random()<0.5:
-          auxL= np.append(auxL,1)
-        else:
-          auxL= np.append(auxL,0)
-        l.append(auxL)
-    """
-
-    # NUEVA hecha por Javi, para representacion entera
+    # Para representacion entera
     # generamos aleatorios entre 1 y K para los n "bits" (tam) de la regla
     if(not b):	 # si la representacion es entera
-    	auxL=[]
-    	for i in range(tam):
-    		auxL = np.append(auxL, random.randint(1,k))	#Se introduce un intervalo de 1 a k intervalos
+        auxL=[]
+        for i in range(tam):
+            auxL = np.append(auxL, random.randint(0,k))		#Se introduce un intervalo de 1 a k intervalos
+        if random.random()<0.5: # de forma aleatoria generamos 0 o 1 para la clase
+            auxL= np.append(auxL,1)
+        else:
+            auxL= np.append(auxL,0)   		
 
     #generamos aleatorios 0 y 1 para los n "bits" (tam) de la regla
     else:		# Si la representacion es binaria
-    	auxL=[]
-    	for i in range(tam):	
-	        if random.random()<0.5:		# de forma aleatoria generamos 0 o 1 y lo introducimos a la regla
-	        	auxL= np.append(auxL,1)
-	        else:
-	        	auxL= np.append(auxL,0)
+        auxL=[]
+        for i in range(tam):
+            r=[]
+            for j in range(k):
+                if random.random()<0.5:		# de forma aleatoria generamos 0 o 1 y lo introducimos a la regla
+                    r= np.append(r,1)
+                else:
+                    r= np.append(r,0)
+            auxL.append(r)
+        if random.random()<0.5:     # Introducimos la clase
+            auxL.append(1)
+        else:
+            auxL.append(0)
 
     return auxL
 
   def fitnessPob1(self, auxP,dataset,clasificador, b,k):
     l = []
     for p in auxP:
-      f = clasificador.evaluar(p, dataset, b,k)
+      estrategia = EstrategiaParticionado.ValidacionCruzada(1)
+      estrategia.creaParticiones(dataset, None)
+      train = dataset.extraeDatos(estrategia.listaPartic[0].indicesTest)
+      f = clasificador.validacion(p, dataset, train, b,k)
       l.append([1-f, p])
     return l
-
   # Metodo donde se crea la poblacion inicial, si el campo binary es true se hara para representacion binaria
   # si no se aplicara representacion entera.
   def procesamiento(self, dataset, clasificador, binary):
@@ -66,8 +64,7 @@ class ClasificadorAG():
     auxP = []
     tam = len(dataset.nombreAtributos)
 
-    #calculamos el numero de intervalor (caso entero)	
-    #n = len(dataset.datos) Creo que esto es el tamano de la poblacion
+    #calculamos el numero de intervalor (caso entero)
     n = self.poblacion	# El numero de individuos es el que le has introducido
     k = int(1+3.322*np.log10(n))
     
@@ -76,54 +73,47 @@ class ClasificadorAG():
       r = random.randint(1, 5)	# Numero de reglas del individuo que se crea, minimo 1, maximo 5
       for j in range(r):	# Creamos j reglas y las vamos introduciendo una a una en individuo
         individuo.append(self.crearRegla(tam-1,k, binary))
-      print("individuo",i)
-      print(individuo)
       auxP.append(individuo)
-      # En este punto ya tenemos la poblacion inicial creada sin la clase
+      # En este punto ya tenemos la poblacion inicial creada
 
-    #poblacion = self.fitnessPob1(auxP,dataset,clasificador, binary, k)
+    poblacion = self.fitnessPob1(auxP,dataset,clasificador, binary, k)
 
-
-
-
-    """
-     for i in range(self.n):
+    for i in range(self.nepocas):
+      #Realizamos la seleccion de progenitores
       pobAux = self.seleccionProgenitores(poblacion)
-      #print("\nProg: ", pobAux)
-     
+      print("\nProg: ", pobAux)
+
+      #Realixamos el cruce uniforme
       pobAux = self.cruceUniformePob(pobAux)
       #print("\nCruce : ", pobAux)
     
-      pobAux = self.mutacionPob(pobAux)
-     # print("\nMut : ", pobAux)
+      #realizamos la mutacion
+      pobAux = self.mutacionPob(pobAux,binary)
+      print("\nMut : ", pobAux)
       #print()
       
-      pobAux = self.fitnessPob(self.binariosFnc(pobAux),dataset,clasificador)
-     # print("\nFit2 : ", pobAux)
-      poblacion = self.seleccionSup(pobAux,poblacion)
+      #realizamos el fitness
+      #pobAux = self.fitnessPob(self.binariosFnc(pobAux),dataset,clasificador)
+      #print("\nFit2 : ", pobAux)
+
+      #Cogemos los mejores
+      #poblacion = self.seleccionSup(pobAux,poblacion)
       #print("\nProblacion final: ", poblacion)
 
     return poblacion[0][0], poblacion[0][1]
-
-    #print("PP:",  poblacion)
-   
-    """
-    return 1
     
 
   def seleccionProgenitores(self, poblacion):
     auxp = sorted(poblacion,key=lambda t: t[0], reverse=True)
     t = int(len(poblacion)/2)
     return auxp[0:t]
-   
-
-
-
 
   def fitnessPob(self,binarios,dataset,clasificador):
-    estrategia = EstrategiaParticionado.ValidacionSimple(0.7,1)
+    estrategia = EstrategiaParticionado.ValidacionCruzada(1)
     tam = len(binarios)
     dataSetAux = Datos('ConjuntosDatos/wdbc.data')
+    estrategia.creaParticiones(dataset, None)
+    train = dataset.extraeDatos(estrategia.listaPartic[0].indicesTest)
 
     e=[]
     for c in binarios:
@@ -132,7 +122,7 @@ class ClasificadorAG():
       dataSetAux.datos = dataset.extraeDatosRelevantes(colNum)
       dataSetAux.diccionarios = dataset.diccionarioRelevante(colNum)
       dataSetAux.nominalAtributos = dataset.atribDiscretosRelevantes(colNum)
-      f=(1-clasificador.validacion(estrategia, dataSetAux, clasificador)[0])
+      f=(1-clasificador.validacion(estrategia, dataSetAux, train, clasificador)[0])
       #print(f)
       e.append([f, c])
     #np.flatnonzero(e)
@@ -140,18 +130,39 @@ class ClasificadorAG():
 
 
   def cruceUniformePob(self, pob):
+    print(int(len(pob)/2))
+    p = []
     for l in range(int(len(pob)/2)):
-      for i in range(len(pob[l][1])):
-        if random.random()<  0.2:
-          print("YES\n")
-          pob[l][1][i], pob[l+1][1][i] = pob[l][1][i], pob[l+1][1][i]
-    return pob
+      p.append(pob[l*2][1])
+      p.append(pob[l*2+1][1])
+      ptoCruce1 = random.randint(0, len(pob[l*2][1])-1) #elijes el punto de cruce del primer individuo
+      ptoCruce2 = random.randint(0, len(pob[(l*2)+1][1])-1) # elije el punto de cruce del segundo individuo
 
-  def mutacionPob(self, pob):
+      hijo1 = []
+      hijo2 = []
+      # cruce en cualquier punto de los dos individuos
+      print("pto1", ptoCruce1, "pto2", ptoCruce2, "individuo1", l*2, "individuo2", l*2+1)
+      hijo1 = pob[l*2][1][:ptoCruce1]
+      hijo1.append(pob[(l*2+1)][1][ptoCruce2:])
+      hijo2 = pob[(l*2+1)][1][:ptoCruce2]
+      hijo2.append(pob[l*2][1][ptoCruce1:])
+
+      p.append(hijo1)
+      p.append(hijo2)
+
+    return p
+
+  def mutacionPob(self, pob, b):
     for l in range(int(len(pob))):
-      for i in range(len(pob[l][1])):#cambiar
-        if random.random() < 0.001:
-          pob[l][1][i] = 0 if pob[l][1][i]==1 else 1
+      for i in range(len(pob[l])):#cambiar
+        if(not b):
+          if random.random() < 0.001:
+            print("mutacion")
+            pob[l][i] = random.randint(0,k)
+        else:
+          for j in len(pob[l][i]):
+            if random.random() < 0.001:
+              pob[l][i][j] = 0 if pob[l][i][j]==1 else 1
     return pob
 
   def binariosFnc(self, pob):

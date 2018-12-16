@@ -5,8 +5,8 @@ import numpy as np
 import ClasificadorAG 
 
 
-data = 'ConjuntosDatos/wdbc.data'
+data = 'ConjuntosDatos/example1.data'
 dataset=Datos(data)
 clasificador=ClasificadorGenetico.ClasificadorGenetico()
-cla = ClasificadorAG.ClasificadorAG(1, 10)
-a =cla.procesamiento(dataset, clasificador, True)
+cla = ClasificadorAG.ClasificadorAG(1, 20)
+a =cla.procesamiento(dataset, clasificador, False)
