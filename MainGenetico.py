@@ -1,12 +1,12 @@
 from Datos import Datos
 import EstrategiaParticionado
-import Clasificador
+import ClasificadorGenetico
 import numpy as np
 import ClasificadorAG 
 
 
 data = 'ConjuntosDatos/wdbc.data'
 dataset=Datos(data)
-clasificador=Clasificador.ClasificadorGenetico(10)
+clasificador=ClasificadorGenetico.ClasificadorGenetico()
 cla = ClasificadorAG.ClasificadorAG(1, 10)
-a =cla.procesamiento(dataset, clasificador, False)
+a =cla.procesamiento(dataset, clasificador, True)

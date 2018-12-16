@@ -13,21 +13,44 @@ class ClasificadorAG():
 
   def __init__(self, n, p):
     self.nepocas = n
-    self.p=p
+    self.poblacion=p
     pass
-  def crearReglas(self,tam, k, b):
-    l = []
-    if(not b):
+
+  # Metodo que crea reglas de tamano tam, si la representacion es binaria b valdra true
+  # y k no sera relevante. Si la representacion es entera b valdra false y se usara k
+  # para la generacion de la regla 
+  def crearRegla(self,tam, k, b):
+    #l = []		creo que la l no hace falta porque ya hacemos un bucle en procesamiento de 1 a 5 reglas
+
+    """ No queria borrar nada de lo que has hecho
+    if(not b):	# si la representacion es entera
       for i in range(tam):
         auxL=[]
-        auxL=np.random.randint(k+1, size=tam)
-        if random.random()<  0.5:
+        auxL=np.random.randint(k+1, size=tam) #duda
+        if random.random()<0.5:
           auxL= np.append(auxL,1)
         else:
           auxL= np.append(auxL,0)
         l.append(auxL)
-    print(l)
-    return l
+    """
+
+    # NUEVA hecha por Javi, para representacion entera
+    # generamos aleatorios entre 1 y K para los n "bits" (tam) de la regla
+    if(not b):	 # si la representacion es entera
+    	auxL=[]
+    	for i in range(tam):
+    		auxL = np.append(auxL, random.randint(1,k))	#Se introduce un intervalo de 1 a k intervalos
+
+    #generamos aleatorios 0 y 1 para los n "bits" (tam) de la regla
+    else:		# Si la representacion es binaria
+    	auxL=[]
+    	for i in range(tam):	
+	        if random.random()<0.5:		# de forma aleatoria generamos 0 o 1 y lo introducimos a la regla
+	        	auxL= np.append(auxL,1)
+	        else:
+	        	auxL= np.append(auxL,0)
+
+    return auxL
 
   def fitnessPob1(self, auxP,dataset,clasificador, b,k):
     l = []
@@ -36,26 +59,29 @@ class ClasificadorAG():
       l.append([1-f, p])
     return l
 
-
-
-
-
+  # Metodo donde se crea la poblacion inicial, si el campo binary es true se hara para representacion binaria
+  # si no se aplicara representacion entera.
   def procesamiento(self, dataset, clasificador, binary):
     poblacion=[]
-
     auxP = []
     tam = len(dataset.nombreAtributos)
-    n = len(dataset.datos)
-    k = int(1+ 3.322*np.log10(n))
-    
-    for i in range(n):
-      individuo=[]
-      r = random.randint(1, 5)
-      for j in range r:
-        individuo.append(self.crearReglas(tam-1,k, binary))
-      auxP.append(individuo)
 
-    poblacion = self.fitnessPob1(auxP,dataset,clasificador, binary, k)
+    #calculamos el numero de intervalor (caso entero)	
+    #n = len(dataset.datos) Creo que esto es el tamano de la poblacion
+    n = self.poblacion	# El numero de individuos es el que le has introducido
+    k = int(1+3.322*np.log10(n))
+    
+    for i in range(n):	#duda la poblacion inicial es de tantos individuos como datos del dataset, creo que es el tamano de train
+      individuo=[]
+      r = random.randint(1, 5)	# Numero de reglas del individuo que se crea, minimo 1, maximo 5
+      for j in range(r):	# Creamos j reglas y las vamos introduciendo una a una en individuo
+        individuo.append(self.crearRegla(tam-1,k, binary))
+      print("individuo",i)
+      print(individuo)
+      auxP.append(individuo)
+      # En este punto ya tenemos la poblacion inicial creada sin la clase
+
+    #poblacion = self.fitnessPob1(auxP,dataset,clasificador, binary, k)
 
 
 
