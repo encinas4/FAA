@@ -66,21 +66,6 @@ class ClasificadorGenetico():
           aciertos+=1
          
         total+=1
-    else:
-      for dato in train:
-        clase=[]
-        for regla in ind:  
-          transDato=[]
-          for i in range(len(dato)-1):
-              if (self.compararLista(regla[0:-1], transDato)):
-                break
-            clase.append(regla[-1])  
-        #print(clase)
-        if clase !=[] and np.bincount(clase).argmax() == dato[-1]:
-          aciertos+=1
-         
-        total+=1
-
     return 1- aciertos/total
           
            
