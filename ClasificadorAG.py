@@ -20,7 +20,7 @@ class ClasificadorAG():
     if(not b):
       for i in range(tam):
         auxL=[]
-        auxL=np.random.randint(k, size=tam)
+        auxL=np.random.randint(k+1, size=tam)
         if random.random()<  0.5:
           auxL= np.append(auxL,1)
         else:
@@ -33,7 +33,7 @@ class ClasificadorAG():
     l = []
     for p in auxP:
       f = clasificador.evaluar(p, dataset, b,k)
-      l.append([f, p])
+      l.append([1-f, p])
     return l
 
 
@@ -59,11 +59,9 @@ class ClasificadorAG():
 
 
 
-    """
-    
 
-    #print("PP:",  poblacion)
-    for i in range(self.p):
+    """
+     for i in range(self.n):
       pobAux = self.seleccionProgenitores(poblacion)
       #print("\nProg: ", pobAux)
      
@@ -80,6 +78,9 @@ class ClasificadorAG():
       #print("\nProblacion final: ", poblacion)
 
     return poblacion[0][0], poblacion[0][1]
+
+    #print("PP:",  poblacion)
+   
     """
     return 1
     
@@ -122,7 +123,7 @@ class ClasificadorAG():
 
   def mutacionPob(self, pob):
     for l in range(int(len(pob))):
-      for i in range(len(pob[l][1])):
+      for i in range(len(pob[l][1])):#cambiar
         if random.random() < 0.001:
           pob[l][1][i] = 0 if pob[l][1][i]==1 else 1
     return pob

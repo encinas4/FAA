@@ -24,7 +24,7 @@ class ClasificadorGenetico(object):
       clase=[]
       for regla in ind:  
         for i in range(len(dato)-1):
-          if(not b):
+          if(not b):#no binario
             """if(regla[i] != int(dato[i]/k)):
               break
             if(regla[i] == int(dato[i]/k) and regla[-1] == dato[-1] and i == len(dato)-2): 
@@ -32,7 +32,7 @@ class ClasificadorGenetico(object):
             if (i == len(dato)-2):
               error+=1"""
             aux =[]
-            aux.append(int(dato[0:-2]/k))
+            aux.append(dato[0:-2]/k+1)#para cada dato[i] lo dividimos por k y le sumamos 1
             if(cmp (regla[0:-2], aux)==1):
               clase.append(regla[-1])
           else: 
@@ -40,7 +40,7 @@ class ClasificadorGenetico(object):
         if(clase != []):
           cnt = Counter(list_of_integers)
           if(cnt.most_common(1)== dato[-1])
-          acierto+=1
+            acierto+=1
         total+=1
     return acierto/total
 
