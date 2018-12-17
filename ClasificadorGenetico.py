@@ -3,7 +3,7 @@ import numpy as np
 import scipy.stats as norm
 import warnings
 import math as math
-import collections as collections 
+import collections as collections
 import copy
 
 class Intervalo():
@@ -23,10 +23,10 @@ class ClasificadorGenetico():
     return
 
   def error(self,datos,pred):
-    # Aqui se compara la prediccion (pred) con las clases reales y se calcula el error  
+    # Aqui se compara la prediccion (pred) con las clases reales y se calcula el error
     return np.count_nonzero(datos[:, -1] != pred)/len(pred)
 
-  #Metodo que crea la tabla de intervalos a partir de un dataset y un k intervalos dado 
+  #Metodo que crea la tabla de intervalos a partir de un dataset y un k intervalos dado
   def crearTablaIntervalos(self, dataset, train, k):
     column = []
     self.listaMatrices = []
@@ -36,7 +36,7 @@ class ClasificadorGenetico():
       minim = min(column)
       maxim = max(column)
       A = (maxim -minim)/k
-      
+
       intervalo = Intervalo(0, 0, 0)    # En el caso de intervalos 0
       auxA.append(intervalo)
       for i in range(k):    # #bucle que crea todos los intervalos de un atributo
@@ -55,21 +55,23 @@ class ClasificadorGenetico():
     if(not b):
       for dato in train:
         clase=[]
-        for regla in ind:  
+        for regla in ind:
           transDato=[]
           for i in range(len(dato)-1):
-            transDato.append(self.idIntervalor(i, dato[i]))
+            transDato.append(self.idIntervalor(i, dato[i], regla[i]))
           if (self.compararLista(regla[0:-1], transDato)):
-            clase.append(regla[-1])  
-        #print(clase)
+            clase.append(regla[-1])
+        if clase==[] or clase.count(0) == clase.count(1):
+            for r in ind:
+                clase.append(r[-1])
         if clase !=[] and np.bincount(clase).argmax() == dato[-1]:
           aciertos+=1
-         
         total+=1
+
     else:
       for dato in train:
         clase=[]
-        for regla in ind:  
+        for regla in ind:
           transDato=[]
           c=0
           for i in range(len(dato)-1):
@@ -79,13 +81,18 @@ class ClasificadorGenetico():
               c+=1
           if c == len(regla):
             clase.append(regla[-1])
+        if clase==[] or clase.count(0) == clase.count(1):
+            for r in ind:
+                clase.append(r[-1])
         if clase !=[] and np.bincount(clase).argmax() == dato[-1]:
           aciertos+=1
         total+=1
 
-    return 1- aciertos/total
-          
+    return 1-aciertos/total
+
   def comprobarReglasBin(self, lista, valor, i):
+    if 1 not in lista:
+        return True
     for j in range(len(lista)):
       if lista[j] == 1:
         rango = self.listaMatrices[i][j+1]
@@ -96,7 +103,7 @@ class ClasificadorGenetico():
     return False
 
 
-    
+
   def compararLista(self, a,b):
     if len(a) == len(b):
       for i in range(len(a)):
@@ -104,11 +111,14 @@ class ClasificadorGenetico():
           return False
     return True
 
-  def idIntervalor(self, id, valor):
+  def idIntervalor(self, id, valor, regla):
+    if regla == 0:
+      return 0
     for intervalo in self.listaMatrices[id]:
       if(intervalo.min <= valor and intervalo.max>= valor):
         return intervalo.id
-    return intervalo.id
+    #return intervalo.id
+    return 0
 
   def clasificar(self, individuo, dataset, train, b,k):
     self.crearTablaIntervalos(dataset, train, k)
@@ -116,17 +126,19 @@ class ClasificadorGenetico():
       pred=[]
       for dato in train:
         clase=[]
-        for regla in individuo:  
+        for regla in individuo:
           transDato=[]
           for i in range(len(dato)-1):
-            transDato.append(self.idIntervalor(i, dato[i]))
+            transDato.append(self.idIntervalor(i, dato[i], regla[i]))
           if (self.compararLista(regla[0:-1], transDato)):
             clase.append(regla[-1])
-        if clase== []:  
+        if clase== [] or clase.count(0)== clase.count(1):
           for r in individuo:
             clase.append(r[-1])
-        
-        pred.append(np.bincount(clase).argmax())
+        if clase.count(0) > clase.count(1):
+            pred.append(0)
+        else:
+            pred.append(1)
       return pred
     else:
       pred=[]
@@ -142,10 +154,10 @@ class ClasificadorGenetico():
               c+=1
           if c == len(regla)-1:
             clase.append(regla[-1])
-        if clase== []:  
+        if clase== []:
           for r in individuo:
             clase.append(r[-1])
-        
+
         pred.append(np.bincount(clase).argmax())
       return pred
 

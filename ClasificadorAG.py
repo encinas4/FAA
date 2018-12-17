@@ -4,11 +4,14 @@ import copy
 import numpy as np
 import random
 import math
+import matplotlib.pyplot as plt
 
 
 class ClasificadorAG():
   poblacion = 0;
   nepocas =0;
+  medias=[]
+  mejores=[]
 
   def __init__(self, n, p):
     self.nepocas = n
@@ -17,7 +20,7 @@ class ClasificadorAG():
 
   # Metodo que crea reglas de tamano tam, si la representacion es binaria b valdra true
   # y k no sera relevante. Si la representacion es entera b valdra false y se usara k
-  # para la generacion de la regla 
+  # para la generacion de la regla
   def crearRegla(self,tam, k, b):
     # Para representacion entera
     # generamos aleatorios entre 1 y K para los n "bits" (tam) de la regla
@@ -47,26 +50,25 @@ class ClasificadorAG():
             auxL.append(0)
     return auxL
 
-  def fitnessPob1(self, auxP,dataset,clasificador, b,k):
+  def fitnessPob1(self, auxP,dataset,train,clasificador, b,k):
     l = []
     for p in auxP:
-      estrategia = EstrategiaParticionado.ValidacionCruzada(1)
-      estrategia.creaParticiones(dataset, None)
-      train = dataset.extraeDatos(estrategia.listaPartic[0].indicesTest)
-      f = clasificador.validacion(p, dataset, train, b,k)
+      f = clasificador.validacion(p, dataset,train, b,k)
       l.append([1-f, p])
     return l
   # Metodo donde se crea la poblacion inicial, si el campo binary es true se hara para representacion binaria
   # si no se aplicara representacion entera.
   def procesamiento(self, dataset, clasificador, binary):
     poblacion=[]
+    self.mejores=[]
+    self.medias=[]
     auxP = []
     tam = len(dataset.nombreAtributos)
 
     #calculamos el numero de intervalor (caso entero)
     n = self.poblacion	# El numero de individuos es el que le has introducido
     k = int(1+3.322*np.log10(n))
-    
+
     for i in range(n):	#duda la poblacion inicial es de tantos individuos como datos del dataset, creo que es el tamano de train
       individuo=[]
       r = random.randint(1, 5)	# Numero de reglas del individuo que se crea, minimo 1, maximo 5
@@ -74,8 +76,11 @@ class ClasificadorAG():
         individuo.append(self.crearRegla(tam-1,k, binary))
       auxP.append(individuo)
       # En este punto ya tenemos la poblacion inicial creada
-    #print("AuxP", auxP)
-    poblacion = self.fitnessPob1(auxP,dataset,clasificador, binary, k)
+      #print("AuxP", auxP)
+    estrategia = EstrategiaParticionado.ValidacionCruzada(1)
+    estrategia.creaParticiones(dataset, None)
+    train = dataset.extraeDatos(estrategia.listaPartic[0].indicesTest)
+    poblacion = self.fitnessPob1(auxP,dataset, train,clasificador, binary, k)
     for i in range(self.nepocas):
       #Realizamos la seleccion de progenitores
       pobAux = self.seleccionProgenitores(poblacion)
@@ -84,21 +89,31 @@ class ClasificadorAG():
       #Realixamos el cruce uniforme
       pobAux = self.cruceUniformePob(pobAux)
       #print("\nCruce : ", pobAux)
-    
+
       #realizamos la mutacion
       pobAux = self.mutacionPob(pobAux,binary,k)
       #print("\nMut : ", pobAux)
       #print()
-      
+
       #realizamos el fitness
       #print(pobAux, poblacion)
-      pobAux = self.fitnessPob1(pobAux,dataset,clasificador,binary,k)
+      pobAux = self.fitnessPob1(pobAux,dataset,train,clasificador,binary,k)
       #print("\nFit2 : ", pobAux)
-     
+
       #Cogemos los mejores
       poblacion = self.seleccionSup(pobAux,poblacion)
-     # print("\nProblacion final: ", poblacion)
-     
+      #print("\nProblacion final: ", poblacion)
+
+      listaF = 0
+      listaFi = []
+      for p in poblacion:
+          #print(p)
+          listaF+=p[0]
+          listaFi.append(p[0])
+      media = listaF/len(poblacion)
+      self.medias.append(media)
+      listaFi.sort()
+      self.mejores.append(listaFi[-1])
 
     estrategia = EstrategiaParticionado.ValidacionCruzada(1)
     estrategia.creaParticiones(dataset, None)
@@ -107,15 +122,26 @@ class ClasificadorAG():
     return clasificador.error(pred, test)
 
 
-    
-    
+  def imprimirGraficas(self):
+      i=0
+      for m in self.mejores:
+          print("EL mejor de la epoca ", i, "tiene fitness", m)
+          i+=1
+      plt.plot(self.mejores,"bo", label="mejores fitness")
+      plt.plot(self.medias,"r*", label="medias")
+      plt.ylabel("valor del fitness")
+      plt.xlabel("Numero de epocas")
+      plt.legend()
+      plt.title("Grafica de los mejores fitnes y media")
+      plt.show()
+
 
   def seleccionProgenitores(self, poblacion):
     auxp = sorted(poblacion,key=lambda t: t[0], reverse=True)
     t = int(len(poblacion)/2)
     return auxp[0:t]
 
-  
+
 
   def cruceUniformePob(self, pob):
     p = []
@@ -139,19 +165,19 @@ class ClasificadorAG():
 
   def mutacionPob(self, pob, b,k):
     if(not b):
-      for p in range(len(pob)):  
+      for p in range(len(pob)):
         for l in range(int(len(pob[p]))):
           for i in range(len(pob[p][l])):#cambiar
             if random.random() < 0.001:
               pob[p][l][i] = random.randint(0,k)
     else:
-      for p in range(len(pob)):  
+      for p in range(len(pob)):
         for l in range(int(len(pob[p]))):
           for i in range(len(pob[p][l])-1):#cambiar
             for j in range(len(pob[p][l][i])):
               if random.random() < 0.001:
                 pob[p][l][i][j] = 0 if pob[p][l][i][j]==1 else 1
-    
+
     return pob
 
   def binariosFnc(self, pob):
