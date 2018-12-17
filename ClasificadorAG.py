@@ -76,7 +76,6 @@ class ClasificadorAG():
       # En este punto ya tenemos la poblacion inicial creada
     #print("AuxP", auxP)
     poblacion = self.fitnessPob1(auxP,dataset,clasificador, binary, k)
-
     for i in range(self.nepocas):
       #Realizamos la seleccion de progenitores
       pobAux = self.seleccionProgenitores(poblacion)
@@ -152,7 +151,8 @@ class ClasificadorAG():
             for j in range(len(pob[p][l][i])):
               if random.random() < 0.001:
                 pob[p][l][i][j] = 0 if pob[p][l][i][j]==1 else 1
-      return pob
+    
+    return pob
 
   def binariosFnc(self, pob):
     ll=[]
