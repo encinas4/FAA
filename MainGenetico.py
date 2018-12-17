@@ -7,7 +7,7 @@ import ClasificadorAG
 data = 'ConjuntosDatos/wdbc-10.data'
 dataset=Datos(data)
 clasificador=ClasificadorGenetico.ClasificadorGenetico()
-cla = ClasificadorAG.ClasificadorAG(50, 50)
+cla = ClasificadorAG.ClasificadorAG(100, 100)
 a =cla.procesamiento(dataset, clasificador, True)
 cla.imprimirGraficas()
 print(a)
