@@ -5,7 +5,7 @@ import numpy as np
 import ClasificadorAG 
 
 
-data = 'ConjuntosDatos/example1.data'
+data = 'ConjuntosDatos/wdbc.data'
 dataset=Datos(data)
 clasificador=ClasificadorGenetico.ClasificadorGenetico()
 cla = ClasificadorAG.ClasificadorAG(50, 50)

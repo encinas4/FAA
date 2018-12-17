@@ -132,7 +132,7 @@ class ClasificadorGenetico():
       pred=[]
       for dato in train:
         clase=[]
-        for regla in individuo:  
+        for regla in individuo:
           transDato=[]
           c=0
           for i in range(len(dato)-1):
@@ -140,7 +140,7 @@ class ClasificadorGenetico():
               break
             else:
               c+=1
-          if c == len(regla):
+          if c == len(regla)-1:
             clase.append(regla[-1])
         if clase== []:  
           for r in individuo:

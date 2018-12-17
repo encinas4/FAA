@@ -28,27 +28,23 @@ class ClasificadorAG():
         if random.random()<0.5: # de forma aleatoria generamos 0 o 1 para la clase
             auxL= np.append(auxL,1)
         else:
-            auxL= np.append(auxL,0)   		
+            auxL= np.append(auxL,0)
 
     #generamos aleatorios 0 y 1 para los n "bits" (tam) de la regla
     else:		# Si la representacion es binaria
         auxL=[]
         for i in range(tam):
             r=[]
-            print(k)
             for j in range(k):
                 if random.random()<0.5:		# de forma aleatoria generamos 0 o 1 y lo introducimos a la regla
                     r= np.append(r,1)
                 else:
                     r= np.append(r,0)
             auxL.append(r)
-            print(r)
         if random.random()<0.5:     # Introducimos la clase
             auxL.append(1)
         else:
             auxL.append(0)
-
-
     return auxL
 
   def fitnessPob1(self, auxP,dataset,clasificador, b,k):
